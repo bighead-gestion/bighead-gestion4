@@ -1,0 +1,1448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Big Head Barcelona — Gestión</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Mono:wght@400;500&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0D0D0D;--cream:#F5F0E8;--blue:#1B3A8C;--blue2:#2E5FA3;--blue-pale:#E8EEF8;
+  --red:#C0392B;--red-pale:#FBEAEA;--green:#1A6B3A;--green-pale:#E6F4EC;
+  --amber:#B7600A;--amber-pale:#FEF3E2;--border:#E0D8CC;--muted:#888070;
+  --surface:#FDFAF5;--card:#FFFFFF;
+  --fh:'Syne',sans-serif;--fb:'Instrument Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--fb);background:var(--cream);color:var(--ink);min-height:100vh;font-size:14px}
+.app{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:220px;min-width:220px;background:var(--ink);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+.brand{padding:20px 16px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.brand-logo{font-family:var(--fh);font-size:18px;font-weight:800;color:#fff;letter-spacing:-.5px;line-height:1.15}
+.brand-sub{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.3);margin-top:3px;text-transform:uppercase;letter-spacing:.08em}
+.nav-sec{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,.22);letter-spacing:.12em;text-transform:uppercase;padding:16px 16px 4px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;font-size:12.5px;color:rgba(255,255,255,.5);transition:all .15s;border-left:2px solid transparent;font-weight:500}
+.nav-item:hover{color:rgba(255,255,255,.9);background:rgba(255,255,255,.04)}
+.nav-item.active{color:#fff;border-left-color:#fff;background:rgba(255,255,255,.07)}
+.ni{font-size:13px;width:16px;text-align:center}
+.sb-foot{margin-top:auto;padding:14px 16px;border-top:1px solid rgba(255,255,255,.08);font-family:var(--fm);font-size:10px;color:rgba(255,255,255,.25);line-height:1.7}
+.sb-foot strong{color:rgba(255,255,255,.5)}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto}
+.page{display:none;padding:28px}
+.page.active{display:block;animation:fi .2s ease}
+@keyframes fi{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:12px}
+.pt{font-family:var(--fh);font-size:24px;font-weight:700;color:var(--ink);letter-spacing:-.4px;line-height:1.1}
+.ps{font-size:12.5px;color:var(--muted);margin-top:3px}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:20px}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;position:relative;overflow:hidden;animation:su .3s ease backwards}
+.metric::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--blue)}
+.metric.good::before{background:var(--green)}.metric.warn::before{background:var(--amber)}.metric.bad::before{background:var(--red)}
+@keyframes su{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.metric:nth-child(1){animation-delay:.05s}.metric:nth-child(2){animation-delay:.1s}.metric:nth-child(3){animation-delay:.15s}.metric:nth-child(4){animation-delay:.2s}
+.ml{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.mv{font-family:var(--fh);font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.4px;line-height:1}
+.md{font-size:11px;margin-top:4px;color:var(--muted)}
+.md.up{color:var(--green)}.md.dn{color:var(--red)}.md.wn{color:var(--amber)}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px;margin-bottom:14px}
+.ct{font-family:var(--fh);font-size:13px;font-weight:600;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:7px}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g32{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+
+/* TABLE */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:6px 8px;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1.5px solid var(--border);white-space:nowrap;background:var(--surface)}
+td{padding:8px 8px;border-bottom:1px solid var(--border);color:var(--ink);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--cream)}
+
+/* BADGES */
+.b{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.bok{background:var(--green-pale);color:var(--green)}
+.bwn{background:var(--amber-pale);color:var(--amber)}
+.bbd{background:var(--red-pale);color:var(--red)}
+.bin{background:var(--blue-pale);color:var(--blue)}
+
+/* ALERTS */
+.alert{border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;display:flex;gap:9px;align-items:flex-start}
+.ai{font-size:15px;flex-shrink:0;margin-top:1px}
+.aw{background:var(--amber-pale);border:1px solid #F0C882;color:#7A4500}
+.ag{background:var(--green-pale);border:1px solid #8ECBA8;color:var(--green)}
+.ab{background:var(--red-pale);border:1px solid #F0A0A0;color:var(--red)}
+.aif{background:var(--blue-pale);border:1px solid #90ACE0;color:var(--blue)}
+
+/* EERR */
+.er{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.er:last-child{border-bottom:none}
+.er.sh{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);padding:14px 0 3px;border-bottom:none}
+.er.sub{padding-left:14px;color:var(--muted);font-size:12px}
+.er.tot{font-family:var(--fh);font-weight:700;font-size:15px;padding-top:10px;margin-top:3px;border-top:2px solid var(--ink);border-bottom:none}
+.ev{font-family:var(--fm);font-weight:500}.ev.neg{color:var(--red)}.ev.pos{color:var(--green)}
+
+/* FORMS */
+.fg{display:grid;gap:8px;margin-bottom:12px}
+.fg2{grid-template-columns:1fr 1fr}.fg3{grid-template-columns:1fr 1fr 1fr}.fg4{grid-template-columns:1fr 1fr 1fr auto}
+.fl label{display:block;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px}
+.fl input,.fl select,.fl textarea{width:100%;padding:7px 10px;border:1px solid var(--border);border-radius:7px;font-family:var(--fb);font-size:13px;background:var(--surface);color:var(--ink);outline:none;transition:border-color .15s}
+.fl input:focus,.fl select:focus{border-color:var(--blue);background:#fff}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:7px;font-size:12.5px;font-weight:600;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--ink);font-family:var(--fb);transition:all .15s}
+.btn:hover{background:var(--cream)}
+.btp{background:var(--ink);color:#fff;border-color:var(--ink)}.btp:hover{background:#333}
+.btb{background:var(--blue);color:#fff;border-color:var(--blue)}.btb:hover{background:var(--blue2)}
+.btg{background:var(--green);color:#fff;border-color:var(--green)}.btg:hover{background:#15593A}
+
+/* UPLOAD */
+.uz{border:2px dashed var(--border);border-radius:10px;padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface)}
+.uz:hover{border-color:var(--blue);background:var(--blue-pale)}
+.uicon{font-size:32px;margin-bottom:8px}
+.utxt{font-size:13px;color:var(--muted)}
+.uhint{font-size:11px;color:var(--muted);margin-top:3px}
+input[type=file]{display:none}
+
+/* PROGRESS */
+.pw{margin-bottom:12px}
+.plb{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px}
+.plb span{color:var(--muted);font-size:11px}
+.pb{background:var(--cream);border-radius:4px;height:5px;overflow:hidden;border:1px solid var(--border)}
+.pf{height:100%;border-radius:4px;transition:width .6s ease}
+
+/* FACTURAS TABLE estado colors */
+.ef-cash{background:#FFF8E1}
+.ef-banco{background:var(--surface)}
+.ef-falta{background:var(--red-pale)}
+.ef-ok{background:var(--green-pale)}
+
+/* PROVEEDOR cards */
+.prov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.prov-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
+.prov-name{font-family:var(--fh);font-size:14px;font-weight:700;margin-bottom:2px}
+.prov-cat{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.prow{display:flex;justify-content:space-between;font-size:11.5px;padding:4px 0;border-bottom:1px solid var(--border)}
+.prow:last-child{border-bottom:none}
+.prow span{color:var(--muted)}
+
+/* TOP products */
+.tp{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.tp:last-child{border-bottom:none}
+.tpn{font-family:var(--fh);font-size:20px;font-weight:800;color:var(--border);width:26px;flex-shrink:0;line-height:1}
+.tpi{flex:1}
+.tpname{font-weight:600;font-size:12.5px}
+.tpsub{font-size:11px;color:var(--muted);margin-top:1px}
+.tpv{font-family:var(--fm);font-size:13px;font-weight:500}
+
+/* INVERSORES */
+.inv-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.inv-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+.inv-name{font-family:var(--fh);font-size:16px;font-weight:700;margin-bottom:2px}
+.inv-role{font-size:10px;color:var(--muted);margin-bottom:10px}
+.ir{display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)}
+.ir:last-child{border-bottom:none}
+.ir span{color:var(--muted)}
+.ir strong{font-family:var(--fm)}
+
+/* CHECKLIST */
+.chk label{display:flex;align-items:flex-start;gap:8px;font-size:13px;cursor:pointer;padding:6px 0;border-bottom:1px solid var(--border)}
+.chk label:last-child{border-bottom:none}
+.chk input[type=checkbox]{margin-top:2px;accent-color:var(--blue);width:14px;height:14px}
+
+/* SEMANA CARDS */
+.wk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.wk{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.wk.now{background:var(--ink);border-color:var(--ink);color:#fff}
+.wkl{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;opacity:.5}
+.wkv{font-family:var(--fh);font-size:20px;font-weight:700;letter-spacing:-.4px;margin:3px 0}
+.wks{font-size:11px;opacity:.6}
+
+/* REC items */
+.rec{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:0 8px 8px 0;padding:11px 13px;margin-bottom:9px}
+.rec.rw{border-left-color:var(--amber)}.rec.rb{border-left-color:var(--red)}.rec.rg{border-left-color:var(--green)}
+.rct{font-weight:600;font-size:12.5px;margin-bottom:2px}
+.rcd{font-size:11.5px;color:var(--muted);line-height:1.5}
+
+/* STATS in EERR sidebar */
+.stat-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.stat-row:last-child{border-bottom:none}
+.stat-row span{color:var(--muted)}
+.stat-row strong{font-family:var(--fm)}
+
+/* FACTURA PENDIENTE table highlight */
+td.falta{color:var(--red);font-weight:600}
+td.ok{color:var(--green)}
+td.cash{color:var(--amber)}
+
+/* DIVIDER */
+.div{height:1px;background:var(--border);margin:16px 0}
+
+/* TABS within page */
+.tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:1px solid var(--border)}
+.tab{padding:8px 16px;font-size:12.5px;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500;transition:all .15s}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-pane{display:none}.tab-pane.active{display:block}
+
+/* FC colors */
+.fcg{color:#0A5C2A;font-weight:600}.fco{color:var(--green);font-weight:600}
+.fcw{color:var(--amber);font-weight:600}.fcb{color:var(--red);font-weight:600}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="brand">
+    <div class="brand-logo">🍔 BIG HEAD<br>BARCELONA</div>
+    <div class="brand-sub">Panel de gestión · v2.0</div>
+  </div>
+  <div class="nav-sec">Operación</div>
+  <div class="nav-item active" onclick="goTo('dashboard',this)"><span class="ni">◈</span>Dashboard</div>
+  <div class="nav-item" onclick="goTo('ventas',this)"><span class="ni">↑</span>Ventas</div>
+  <div class="nav-item" onclick="goTo('eerr',this)"><span class="ni">≡</span>EERR</div>
+  <div class="nav-sec">Costos</div>
+  <div class="nav-item" onclick="goTo('escandallos',this)"><span class="ni">⊞</span>Escandallos</div>
+  <div class="nav-item" onclick="goTo('facturas',this)"><span class="ni">⊡</span>Facturas</div>
+  <div class="nav-item" onclick="goTo('proveedores',this)"><span class="ni">⟳</span>Proveedores</div>
+  <div class="nav-sec">Financiero</div>
+  <div class="nav-item" onclick="goTo('inversores',this)"><span class="ni">◉</span>Inversores</div>
+  <div class="nav-item" onclick="goTo('recomendaciones',this)"><span class="ni">✦</span>Recomendaciones</div>
+  <div class="sb-foot">
+    <strong>Semana 4</strong> · 19 may 2026<br>
+    Próxima carga: <strong>lun 18/5</strong><br>
+    <span id="sb-stats">Cargando datos...</span>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ═══════════════════════════════ DASHBOARD ═══════════════════════════════ -->
+<section class="page active" id="page-dashboard">
+  <div class="ph">
+    <div><div class="pt">Dashboard</div><div class="ps">Datos reales · 23 abr – 17 may 2026 · SumUp</div></div>
+    <button class="btn btp" onclick="goTo('ventas',document.querySelector('[onclick*=ventas]'))">+ Cargar semana</button>
+  </div>
+
+  <div class="metrics">
+    <div class="metric warn"><div class="ml">Ventas brutas reales</div><div class="mv">€27.820</div><div class="md up">22/4–17/5 · 23 días</div></div>
+    <div class="metric good"><div class="ml">Proyección mayo</div><div class="mv">~€30.000</div><div class="md up">✅ Supera objetivo €27k</div></div>
+    <div class="metric good"><div class="ml">Food cost real</div><div class="mv">~31%</div><div class="md up">↓ vs 33% plan</div></div>
+    <div class="metric good"><div class="ml">Break-even mensual</div><div class="mv">€24.000</div><div class="md up">✅ Mayo superado</div></div>
+    <div class="metric bad"><div class="ml">Facturas faltantes</div><div class="mv" id="dash-faltantes">2</div><div class="md dn">Acción urgente</div></div>
+    <div class="metric good"><div class="ml">Facturas registradas</div><div class="mv" id="dash-registradas">62</div><div class="md up">Al 19/05/2026</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">📈 Ventas por semana vs objetivo</div>
+      <div class="wk-grid">
+        <div class="wk"><div class="wkl">Semana 1</div><div class="wkv">€8.819</div><div class="wks">23–29 abr · +24%</div></div>
+        <div class="wk"><div class="wkl">Semana 2</div><div class="wkv">€5.399</div><div class="wks">30 abr–6 may · −24%</div></div>
+        <div class="wk now"><div class="wkl">Semana 4</div><div class="wkv">€5.764</div><div class="wks">14–17 may · +44%</div></div>
+      </div>
+      <div class="pw"><div class="plb">Sem 1 vs objetivo €7.318 <span style="color:var(--green)">+24% ✓</span></div><div class="pb"><div class="pf" style="width:100%;background:var(--green)"></div></div></div>
+      <div class="pw"><div class="plb">Sem 2 <span style="color:var(--red)">−24% ✗</span></div><div class="pb"><div class="pf" style="width:73%;background:var(--red)"></div></div></div>
+      <div class="pw"><div class="plb">Sem 3 <span style="color:var(--amber)">−17%</span></div><div class="pb"><div class="pf" style="width:81%;background:var(--amber)"></div></div></div>
+    </div>
+    <div class="card">
+      <div class="ct">🍔 Top Hamburguesas</div>
+      <div class="tp"><div class="tpn">01</div><div class="tpi"><div class="tpname">Bacon ⭐</div><div class="tpsub">384 uds · Bacon + Bacon Estándar</div></div><div class="tpv">€5.987</div></div>
+      <div class="tp"><div class="tpn">02</div><div class="tpi"><div class="tpname">Royale</div><div class="tpsub">351 uds</div></div><div class="tpv">€5.407</div></div>
+      <div class="tp"><div class="tpn">03</div><div class="tpi"><div class="tpname">Pepper</div><div class="tpsub">257 uds</div></div><div class="tpv">€3.908</div></div>
+      <div class="tp"><div class="tpn">04</div><div class="tpi"><div class="tpname">Cheese</div><div class="tpsub">219 uds</div></div><div class="tpv">€2.995</div></div>
+      <div class="tp"><div class="tpn">05</div><div class="tpi"><div class="tpname">Baby</div><div class="tpsub">150 uds</div></div><div class="tpv">€1.706</div></div>
+      <div class="tp"><div class="tpn">06</div><div class="tpi"><div class="tpname">Kesito</div><div class="tpsub">47 uds</div></div><div class="tpv">€292</div></div>
+      <div style="margin-top:14px" class="ct">🧾 Top Productos (todos)</div>
+      <div class="tp"><div class="tpn">01</div><div class="tpi"><div class="tpname">Patatas fritas ⭐</div><div class="tpsub">641 uds · Extra más vendido</div></div><div class="tpv">€2.762</div></div>
+      <div class="tp"><div class="tpn">02</div><div class="tpi"><div class="tpname">Copa Estrella Galicia</div><div class="tpsub">481 uds · Bebida más vendida</div></div><div class="tpv">€2.198</div></div>
+      <div class="tp"><div class="tpn">03</div><div class="tpi"><div class="tpname">Bacon (burger)</div><div class="tpsub">384 uds</div></div><div class="tpv">€5.987</div></div>
+      <div class="tp"><div class="tpn">04</div><div class="tpi"><div class="tpname">Royale (burger)</div><div class="tpsub">351 uds</div></div><div class="tpv">€5.407</div></div>
+      <div class="tp"><div class="tpn">05</div><div class="tpi"><div class="tpname">Pepper (burger)</div><div class="tpsub">257 uds</div></div><div class="tpv">€3.908</div></div>
+      <div class="tp"><div class="tpn">06</div><div class="tpi"><div class="tpname">Cheese (burger)</div><div class="tpsub">219 uds</div></div><div class="tpv">€2.995</div></div>
+      <div class="tp"><div class="tpn">07</div><div class="tpi"><div class="tpname">Agua</div><div class="tpsub">145 uds</div></div><div class="tpv">€420</div></div>
+      <div class="tp"><div class="tpn">08</div><div class="tpi"><div class="tpname">Coca-Cola Zero</div><div class="tpsub">131 uds</div></div><div class="tpv">€474</div></div>
+      <div class="tp"><div class="tpn">09</div><div class="tpi"><div class="tpname">Coca-Cola Regular</div><div class="tpsub">89 uds</div></div><div class="tpv">€254</div></div>
+      <div class="tp"><div class="tpn">10</div><div class="tpi"><div class="tpname">Vermut con soda</div><div class="tpsub">62 uds</div></div><div class="tpv">€316</div></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">📅 Patrón de días</div>
+      <table><thead><tr><th>Día</th><th>Comportamiento</th><th>Media</th></tr></thead><tbody>
+        <tr><td>Mar</td><td><span class="b bbd">Débil</span></td><td>~€430</td></tr>
+        <tr><td>Mié</td><td><span class="b bwn">Variable</span></td><td>~€900</td></tr>
+        <tr><td>Jue</td><td><span class="b bok">Fuerte</span></td><td>~€1.500</td></tr>
+        <tr><td>Vie</td><td><span class="b bok">Muy fuerte</span></td><td>~€1.670</td></tr>
+        <tr><td>Sáb</td><td><span class="b bok">Fuerte</span></td><td>~€1.150</td></tr>
+        <tr><td>Dom</td><td><span class="b bok">Fuerte</span></td><td>~€1.210</td></tr>
+      </tbody></table>
+    </div>
+    <div class="card">
+      <div class="ct">⚠️ Alertas activas</div>
+      <div class="alert ag"><span class="ai">✅</span><div><strong>Semana 4 excelente — €5.764 en 4 días. Mayo proyecta ~€30.000, superando objetivo €27.000. Saldo banco: €11.729.</div></div>
+      <div class="alert aw"><span class="ai">🟡</span><div><strong>Solo faltan 2 facturas:</strong> Carnival mayo (acumula pagos semanales) y Coca-Cola €686,31. Conseguilas para cerrar IVA mayo.</div></div>
+      <div class="alert ag"><span class="ai">✅</span><div><strong>60 facturas registradas</strong> — cruce banco completo al 19/05. 8 egresos sin factura a resolver.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ VENTAS ═══════════════════════════════ -->
+<section class="page" id="page-ventas">
+  <div class="ph">
+    <div><div class="pt">Ventas</div><div class="ps">Cargá CSV de SumUp cada lunes o añadí días manualmente</div></div>
+    <button class="btn btp" onclick="exportVentas()">↓ Exportar para gestor</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('ventas','cargar',this)">Cargar CSV</div>
+    <div class="tab" onclick="showTab('ventas','manual',this)">Entrada manual</div>
+    <div class="tab" onclick="showTab('ventas','historial',this)">Historial completo</div>
+  </div>
+
+  <div class="tab-pane active" id="tp-ventas-cargar">
+    <div class="g2">
+      <div class="card">
+        <div class="ct">📤 Cargar CSV de SumUp</div>
+        <div class="uz" onclick="document.getElementById('sumup-csv').click()">
+          <div class="uicon">📊</div>
+          <div class="utxt">Clic para subir el CSV de SumUp</div>
+          <div class="uhint">Exportar desde SumUp → Ventas → Exportar</div>
+        </div>
+        <input type="file" id="sumup-csv" accept=".csv" onchange="procesarCSV(this)">
+        <div id="csv-ok" class="alert ag" style="margin-top:12px;display:none">
+          <span class="ai">✅</span>
+          <div id="csv-msg">CSV procesado correctamente</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ct">📊 Resumen del CSV</div>
+        <div class="stat-row"><span>Período</span><strong id="csv-periodo">—</strong></div>
+        <div class="stat-row"><span>Ventas brutas</span><strong id="csv-bruto">—</strong></div>
+        <div class="stat-row"><span>Ventas netas</span><strong id="csv-neto">—</strong></div>
+        <div class="stat-row"><span>Líneas de venta</span><strong id="csv-lineas">—</strong></div>
+        <div class="stat-row"><span>Descuentos</span><strong id="csv-desc">—</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="tp-ventas-manual">
+    <div class="card">
+      <div class="ct">✏️ Añadir día manualmente</div>
+      <div class="fg fg4">
+        <div class="fl"><label>Fecha</label><input type="date" id="v-fecha"></div>
+        <div class="fl"><label>Ventas brutas (€)</label><input type="number" id="v-imp" placeholder="0.00" step="0.01"></div>
+        <div class="fl"><label>Servicio</label><select id="v-srv"><option>Noche</option><option>Mediodía</option><option>Ambos</option></select></div>
+        <div class="fl"><label>&nbsp;</label><button class="btn btp" onclick="addVenta()">+ Añadir</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-pane" id="tp-ventas-historial">
+    <div class="card">
+      <div class="ct">📋 Historial de ventas (<span id="ventas-count">16</span> días)</div>
+      <div class="tw"><table>
+        <thead><tr><th>Fecha</th><th>Servicio</th><th>Bruto</th><th>Neto sin IVA</th><th>vs objetivo diario</th></tr></thead>
+        <tbody id="ventas-tbody">
+          <tr><td>23/04/2026</td><td>Noche (apertura)</td><td>€2.551</td><td>€2.281</td><td><span class="b bok">+146%</span></td></tr>
+          <tr><td>24/04/2026</td><td>Noche</td><td>€1.664</td><td>€1.500</td><td><span class="b bok">+60%</span></td></tr>
+          <tr><td>25/04/2026</td><td>Mediodía+Noche</td><td>€1.431</td><td>€1.288</td><td><span class="b bok">+38%</span></td></tr>
+          <tr><td>26/04/2026</td><td>Mediodía+Noche</td><td>€1.631</td><td>€1.473</td><td><span class="b bok">+57%</span></td></tr>
+          <tr><td>28/04/2026</td><td>Noche</td><td>€737</td><td>€661</td><td><span class="b bbd">−29%</span></td></tr>
+          <tr><td>29/04/2026</td><td>Noche</td><td>€764</td><td>€689</td><td><span class="b bbd">−26%</span></td></tr>
+          <tr><td>30/04/2026</td><td>Noche</td><td>€2.000</td><td>€1.793</td><td><span class="b bok">+93%</span></td></tr>
+          <tr><td>02/05/2026</td><td>Mediodía+Noche</td><td>€1.200</td><td>€1.082</td><td><span class="b bok">+16%</span></td></tr>
+          <tr><td>03/05/2026</td><td>Mediodía+Noche</td><td>€851</td><td>€771</td><td><span class="b bwn">−18%</span></td></tr>
+          <tr><td>05/05/2026</td><td>Noche</td><td>€471</td><td>€426</td><td><span class="b bbd">−55%</span></td></tr>
+          <tr><td>06/05/2026</td><td>Noche</td><td>€1.191</td><td>€1.062</td><td><span class="b bok">+15%</span></td></tr>
+          <tr><td>07/05/2026</td><td>Noche</td><td>€1.231</td><td>€1.107</td><td><span class="b bok">+19%</span></td></tr>
+          <tr><td>08/05/2026</td><td>Mediodía+Noche</td><td>€1.680</td><td>€1.511</td><td><span class="b bok">+62%</span></td></tr>
+          <tr><td>09/05/2026</td><td>Mediodía+Noche</td><td>€1.037</td><td>€937</td><td><span class="b bwn">0%</span></td></tr>
+          <tr><td>10/05/2026</td><td>Mediodía+Noche</td><td>€1.219</td><td>€1.101</td><td><span class="b bok">+17%</span></td></tr>
+          <tr><td>12/05/2026</td><td>Noche</td><td>€380</td><td>€344</td><td><span class="b bbd">−63%</span></td></tr>
+          <tr><td>13/05/2026</td><td>Noche</td><td>€682</td><td>€613</td><td><span class="b bbd">−34%</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ EERR ═══════════════════════════════ -->
+<section class="page" id="page-eerr">
+  <div class="ph">
+    <div><div class="pt">Estado de resultados</div><div class="ps">EERR real · 23 abr – 17 may 2026 (4 semanas) · Actualizado 19/05/2026</div></div>
+    <button class="btn btp" onclick="exportEERR()">↓ Exportar para gestor</button>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">📊 Cuenta de resultados</div>
+      <div class="er sh"><span>Ingresos</span></div>
+      <div class="er"><span>Ventas brutas (IVA inc.)</span><span class="ev">€20.142</span></div>
+      <div class="er sub"><span>− IVA repercutido</span><span class="ev neg">−€2.086</span></div>
+      <div class="er sub"><span>− Descuentos aplicados</span><span class="ev neg">−€937</span></div>
+      <div class="er" style="font-weight:600"><span>Ingresos netos reales</span><span class="ev pos">€17.119</span></div>
+      <div class="er sh"><span>Costos variables</span></div>
+      <div class="er sub"><span>Carne (Carnival €2.970 + Assolim + Makro)</span><span class="ev neg">−€4.490</span></div>
+      <div class="er sub"><span>Pan (Palaoa & Wai)</span><span class="ev neg">−€249</span></div>
+      <div class="er sub"><span>Bebidas (Crusat + Coca-Cola)</span><span class="ev neg">−€1.494</span></div>
+      <div class="er sub"><span>Salsas (B Grup / Zafon)</span><span class="ev neg">−€178</span></div>
+      <div class="er sub"><span>Otros Makro (condimentos, varios)</span><span class="ev neg">−€283</span></div>
+      <div class="er" style="font-weight:600"><span>Margen bruto</span><span class="ev pos">€10.425 · 61%</span></div>
+      <div class="er sh"><span>Costos fijos (3 semanas proporcional)</span></div>
+      <div class="er sub"><span>Sueldos Tomi + Santi (€900 c/u)</span><span class="ev neg">−€2.100</span></div>
+      <div class="er sub"><span>Nómina Alan Morsellino</span><span class="ev neg">−€444</span></div>
+      <div class="er sub"><span>Empleados cash (est.)</span><span class="ev neg">−€1.025</span></div>
+      <div class="er sub"><span>Alquiler proporcional</span><span class="ev neg">−€976</span></div>
+      <div class="er sub"><span>Luz + gas (Plenitude)</span><span class="ev neg">−€374</span></div>
+      <div class="er sub"><span>Seguros Mapfre</span><span class="ev neg">−€304</span></div>
+      <div class="er sub"><span>TPV SumUp + IONOS</span><span class="ev neg">−€81</span></div>
+      <div class="er sub"><span>Gestor Sosa Gaston</span><span class="ev neg">−€160</span></div>
+      <div class="er sub"><span>Marketing (Ecoservei, vinilo)</span><span class="ev neg">−€180</span></div>
+      <div class="er sub"><span>Limpieza + varios cash</span><span class="ev neg">−€120</span></div>
+      <div class="er tot"><span>Resultado operativo estimado</span><span class="ev pos">+€4.661</span></div>
+      <div class="alert aw" style="margin-top:14px"><span class="ai">⚠️</span><div>Estimado. Pendiente: SS empleados (~30% sueldos brutos ~€840), factura Coca-Cola €686,31, Carnival mayo, Mapfre €303,99. El resultado real será <strong>menor</strong> una vez incorporadas estas cargas.</div></div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="ct">🎯 Mayo vs plan</div>
+        <div class="pw"><div class="plb">Facturación <span>€27.000 objetivo</span></div><div class="pb"><div class="pf" style="width:77%;background:var(--amber)"></div></div></div>
+        <div class="pw"><div class="plb">Break-even <span>€24.000 mínimo</span></div><div class="pb"><div class="pf" style="width:91%;background:var(--amber)"></div></div></div>
+        <div class="pw"><div class="plb">Food cost <span>33% objetivo</span></div><div class="pb"><div class="pf" style="width:94%;background:var(--green)"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="ct">💰 Nómina mensual</div>
+        <div class="stat-row"><span>Tomi (encargado)</span><strong>€1.800 neto</strong></div>
+        <div class="stat-row"><span>Santi (encargado)</span><strong>€1.800 neto</strong></div>
+        <div class="stat-row"><span>Empleado 1 (cocina)</span><strong>€1.400 bruto + €400 cash</strong></div>
+        <div class="stat-row"><span>Empleado 2 (cocina)</span><strong>€1.400 bruto + €400 cash</strong></div>
+        <div class="stat-row"><span>Empleado 3 (apoyo)</span><strong>€100/sem cash</strong></div>
+        <div class="div"></div>
+        <div class="stat-row" style="font-weight:600"><span>Total estimado</span><strong>~€7.633 + SS</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ ESCANDALLOS ═══════════════════════════════ -->
+<section class="page" id="page-escandallos">
+  <div class="ph"><div><div class="pt">Escandallos</div><div class="ps">Food cost real por ingrediente · precios editables · añadí nuevas hamburguesas</div></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div style="font-family:var(--fm);font-size:12px;color:var(--muted)">FC prom: <span id="esc-fc-avg" style="color:var(--green);font-weight:600">—</span></div>
+      <div style="font-family:var(--fm);font-size:12px;color:var(--muted)">Costo medio: <span id="esc-cost-avg" style="color:var(--amber);font-weight:600">—</span></div>
+    </div>
+  </div>
+
+  <!-- LAYOUT ESCANDALLOS -->
+  <div style="display:grid;grid-template-columns:240px 1fr;gap:16px;min-height:600px">
+
+    <!-- SIDEBAR ESC -->
+    <div>
+      <div class="card" style="padding:12px;margin-bottom:12px">
+        <div class="ct" style="margin-bottom:10px">🍔 Hamburguesas</div>
+        <div id="esc-burger-list"></div>
+        <button class="btn btp" style="width:100%;margin-top:8px;font-size:12px" onclick="escOpenAdd()">+ Nueva hamburguesa</button>
+        <button class="btn" style="width:100%;margin-top:6px;font-size:12px;border:1px solid var(--border)" onclick="escShowComparativa()">📊 Ver comparativa</button>
+      </div>
+      <div class="card" style="padding:12px">
+        <div class="ct" style="margin-bottom:10px">💰 Precios por ingrediente</div>
+        <div id="esc-price-grid" style="display:grid;gap:6px"></div>
+      </div>
+    </div>
+
+    <!-- CONTENT ESC -->
+    <div id="esc-content">
+      <div class="card" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:400px;color:var(--muted);text-align:center">
+        <div style="font-size:48px;margin-bottom:12px">🍔</div>
+        <div style="font-size:16px;margin-bottom:6px;color:var(--text)">Seleccioná una hamburguesa</div>
+        <div style="font-size:13px">O hacé click en "Ver comparativa"</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- MODAL NUEVA BURGER -->
+<div id="esc-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:999;align-items:center;justify-content:center">
+  <div style="background:#1e2028;border:1px solid var(--border);border-radius:16px;padding:28px;width:520px;max-height:85vh;overflow-y:auto">
+    <div style="font-size:18px;font-weight:700;margin-bottom:18px" id="esc-modal-title">Nueva hamburguesa</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+      <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Nombre</label>
+        <input id="esc-new-name" class="form-ctrl" placeholder="Ej: Trufa Negra" style="width:100%"></div>
+      <div><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">PVP carta (€)</label>
+        <input id="esc-new-pvp" class="form-ctrl" type="number" step="0.5" placeholder="13.50" style="width:100%"></div>
+    </div>
+    <div style="margin-bottom:10px"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Descripción (menú)</label>
+      <input id="esc-new-desc" class="form-ctrl" placeholder="2 medallones de 100g, queso cheddar..." style="width:100%"></div>
+    <div style="margin-bottom:10px"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Orden de armado</label>
+      <input id="esc-new-armado" class="form-ctrl" placeholder="Pan → ketchup → carne → queso → pan" style="width:100%"></div>
+    <div style="margin-bottom:10px"><label style="font-size:11px;color:var(--muted);display:block;margin-bottom:4px">Notas</label>
+      <input id="esc-new-notas" class="form-ctrl" placeholder="Notas o dudas" style="width:100%"></div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:6px">Ingredientes</label>
+      <div id="esc-ing-rows"></div>
+      <button onclick="escAddIngRow()" style="width:100%;background:none;border:1px dashed var(--border);border-radius:8px;padding:7px;color:var(--muted);cursor:pointer;margin-top:6px;font-size:12px">+ Ingrediente</button>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button onclick="escCloseModal()" style="flex:1;background:none;border:1px solid var(--border);border-radius:8px;padding:9px;color:var(--muted);cursor:pointer">Cancelar</button>
+      <button onclick="escSaveBurger()" class="btn btp" style="flex:2">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<style>
+.form-ctrl { background:var(--card);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:13px;font-family:inherit; }
+.form-ctrl:focus { outline:none;border-color:var(--accent); }
+.esc-burger-btn { width:100%;background:none;border:1px solid var(--border);border-radius:8px;padding:9px 10px;margin-bottom:5px;cursor:pointer;text-align:left;display:flex;align-items:center;justify-content:space-between;transition:all .15s; }
+.esc-burger-btn:hover { border-color:var(--accent); }
+.esc-burger-btn.esc-active { border-color:var(--accent);background:rgba(232,160,32,0.07); }
+.esc-kpi-strip { display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:16px; }
+.esc-kpi { background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px; }
+.esc-kpi-val { font-family:var(--fm);font-size:18px;font-weight:500;margin-bottom:3px; }
+.esc-kpi-label { font-size:10px;color:var(--muted); }
+.esc-ing-table { width:100%;border-collapse:collapse;margin-bottom:16px; }
+.esc-ing-table th { font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--border);text-align:left; }
+.esc-ing-table td { padding:9px 8px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px; }
+.esc-ing-table tr:last-child td { border-bottom:none; }
+.esc-g-input { width:55px;background:var(--card);border:1px solid var(--border);border-radius:5px;padding:3px 5px;color:var(--text);font-family:var(--fm);font-size:12px;text-align:center; }
+.esc-g-input:focus { outline:none;border-color:var(--accent); }
+.esc-fc-bar { height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-top:6px; }
+.esc-fc-fill { height:100%;border-radius:3px;transition:width .4s; }
+.comp-card { background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;cursor:pointer;transition:all .15s; }
+.comp-card:hover { border-color:var(--accent); }
+</style>
+
+<script>
+// ─── PRECIOS EDITABLES ───
+const ESC_PRICES = {
+  carne:      { label: 'Carne (medallón)',       price: 14.50,  unit: '/kg', nota: '⚠️ confirmar Carnival' },
+  pan:        { label: 'Pan Kalis Gold',         price: 0.60,   unit: '/ud', nota: 'Palaoa & Wai' },
+  queso:      { label: 'Queso cheddar (15g/lon)',price: 8.255,  unit: '/kg', nota: 'TGT Fra. abr' },
+  bacon:      { label: 'Bacon/panceta',          price: 12.00,  unit: '/kg', nota: '⚠️ confirmar Carnival' },
+  ketchup:    { label: 'Ketchup Heinz',          price: 3.00,   unit: '/kg', nota: 'B Grup cubo 5,7kg' },
+  mostaza:    { label: 'Mostaza Heinz',          price: 6.42,   unit: '/kg', nota: 'B Grup monodosis' },
+  alioli:     { label: 'Alioli casero',          price: 2.469,  unit: '/kg', nota: 'Calculado receta real' },
+  mermelada:  { label: 'Merm. morrón casera',    price: 3.477,  unit: '/kg', nota: 'Calculado receta real' },
+  mani:       { label: 'Maní/cacahuete',         price: 3.99,   unit: '/kg', nota: 'Makro 16/04' },
+  pepinillo:  { label: 'Pepinillo',              price: 13.713, unit: '/kg', nota: '€17+IVA/1,5kg Makro' },
+  cebolla:    { label: 'Cebolla',                price: 1.20,   unit: '/kg', nota: 'Estimado' },
+  salsaBH:    { label: 'Salsa Big Head casera',  price: 10.086, unit: '/kg', nota: 'Calculado receta real' },
+  packaging:  { label: 'Packaging/burger',       price: 1.00,   unit: '/ud', nota: 'Bolsa+papel+servilleta €0,2475' },
+};
+
+// Packaging detail: bolsa SOS €0.143 + papel antigrasa €0.0945 + servilleta €0.01 = €0.2475/ud
+// Se carga como precio=1 y gramos=0.2475 para que calcule bien
+
+// ─── RECETAS REALES (solo menú actual) ───
+let ESC_BURGERS = [
+  { id:'cheese', name:'Cheese', pvp:12.50,
+    desc:'2 medallones 100g, queso cheddar',
+    armado:['Pan base','Carne con queso','Carne con queso','Pan tapa'],
+    notas:'Loncha queso 15g × 2. ¿Agregar cebolla, ketchup y mostaza? Por definir.',
+    ings:[
+      {key:'pan',      g:1,    note:'1 ud · €0,60'},
+      {key:'carne',    g:200,  note:'2×100g'},
+      {key:'queso',    g:30,   note:'2 lonchas×15g'},
+      {key:'packaging',g:0.2475, note:'bolsa+papel+servilleta'},
+    ]},
+  { id:'royale', name:'Royale', pvp:13.50,
+    desc:'2 medallones 100g, queso, pepinillo, cebolla, ketchup, mostaza',
+    armado:['Pan base','Ketchup + mostaza','Pepinillo','Carne con queso','Carne con queso','Cebolla brunoise','Ketchup + mostaza','Pan tapa'],
+    notas:'Pepinillo 15g (2 rodajas). Cebolla brunoise mitad blanca mitad morada.',
+    ings:[
+      {key:'pan',       g:1,    note:'1 ud'},
+      {key:'carne',     g:200,  note:'2×100g'},
+      {key:'queso',     g:30,   note:'2×15g'},
+      {key:'pepinillo', g:15,   note:'15g (~2 rodajas)'},
+      {key:'cebolla',   g:10,   note:'10g brunoise'},
+      {key:'ketchup',   g:10,   note:'10g'},
+      {key:'mostaza',   g:10,   note:'10g'},
+      {key:'packaging', g:0.2475, note:'bolsa+papel+servilleta'},
+    ]},
+  { id:'bacon', name:'Bacon', pvp:13.50,
+    desc:'2 medallones 100g, queso cheddar, bacon, salsa BH',
+    armado:['Pan base','Carne con queso','Carne con queso','Bacon','Salsa Big Head','Pan tapa'],
+    notas:'Salsa BH 15g. Unificar nombre en SumUp (Bacon + Bacon Estándar).',
+    ings:[
+      {key:'pan',       g:1,    note:'1 ud'},
+      {key:'carne',     g:200,  note:'2×100g'},
+      {key:'queso',     g:30,   note:'2×15g'},
+      {key:'bacon',     g:16,   note:'2×8g'},
+      {key:'salsaBH',   g:15,   note:'15g'},
+      {key:'packaging', g:0.2475, note:'bolsa+papel+servilleta'},
+    ]},
+  { id:'pepper', name:'Pepper', pvp:14.00,
+    desc:'2 medallones 100g, queso, mermelada morrón, maní, alioli, bacon',
+    armado:['Pan base','Mermelada morrón 18g','Maní picado 8g','Carne con queso','Carne con queso','Bacon 2×8g','Alioli 10g','Pan tapa'],
+    notas:'18g mermelada morrón casera · 8g maní · 10g alioli · 2×8g bacon.',
+    ings:[
+      {key:'pan',       g:1,    note:'1 ud'},
+      {key:'carne',     g:200,  note:'2×100g'},
+      {key:'queso',     g:30,   note:'2×15g'},
+      {key:'bacon',     g:16,   note:'2×8g'},
+      {key:'mermelada', g:18,   note:'18g morrón casera'},
+      {key:'mani',      g:8,    note:'8g'},
+      {key:'alioli',    g:10,   note:'10g alioli casero'},
+      {key:'packaging', g:0.2475, note:'bolsa+papel+servilleta'},
+    ]},
+  { id:'baby', name:'Baby', pvp:10.00,
+    desc:'2 medallones 60g, queso cheddar (slider)',
+    armado:['Pan base','Carne con queso','Carne con queso','Pan tapa'],
+    notas:'Formato slider. Medallones de 60g. Mismas lonchas de queso 15g.',
+    ings:[
+      {key:'pan',       g:1,    note:'1 ud'},
+      {key:'carne',     g:120,  note:'2×60g'},
+      {key:'queso',     g:30,   note:'2×15g'},
+      {key:'packaging', g:0.2475, note:'bolsa+papel+servilleta'},
+    ]},
+  { id:'kesito', name:'Kesito', pvp:6.00,
+    desc:'Tostado de queso cheddar con salsa BH',
+    armado:['Pan tostado base','3 lonchas queso cheddar','Salsa BH','Pan tostado tapa'],
+    notas:'3 lonchas de 15g = 45g queso. PVP €6,00.',
+    ings:[
+      {key:'pan',       g:1,    note:'1 ud tostado'},
+      {key:'queso',     g:45,   note:'3 lonchas×15g'},
+      {key:'salsaBH',   g:15,   note:'15g'},
+    ]},
+];
+
+let escCurrent = null;
+let escEditingId = null;
+let escNewIngs = [];
+
+function escCalcCost(b) {
+  let t = 0;
+  b.ings.forEach(i => {
+    const p = ESC_PRICES[i.key];
+    if (!p) return;
+    if (i.key === 'pan') {
+      t += p.price * i.g; // unidades
+    } else if (i.key === 'packaging') {
+      t += i.g; // ya viene en € directamente (€0.2475)
+    } else {
+      t += (p.price / 1000) * i.g; // gramos → kg
+    }
+  });
+  return t;
+}
+
+function escFcColor(fc) {
+  return fc < 33 ? 'var(--green)' : fc < 38 ? 'var(--amber)' : 'var(--red)';
+}
+
+function escInit() {
+  escRenderPrices();
+  escRenderList();
+  escUpdateHeader();
+}
+
+function escRenderPrices() {
+  document.getElementById('esc-price-grid').innerHTML =
+    Object.entries(ESC_PRICES).map(([k,p]) => `
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="flex:1;font-size:11px;color:var(--muted)">${p.label}</span>
+        <input style="width:62px;background:var(--card);border:1px solid var(--border);border-radius:5px;padding:3px 6px;color:var(--text);font-family:var(--fm);font-size:11px;text-align:right"
+          type="number" step="0.01" value="${p.price}"
+          oninput="ESC_PRICES['${k}'].price=parseFloat(this.value)||0;escRefresh()">
+        <span style="font-size:10px;color:var(--muted);width:24px">${p.unit}</span>
+      </div>`).join('');
+}
+
+function escRenderList() {
+  document.getElementById('esc-burger-list').innerHTML =
+    ESC_BURGERS.map(b => {
+      const cost = escCalcCost(b);
+      const fc = cost / (b.pvp/1.10) * 100;
+      const col = escFcColor(fc);
+      return `<button class="esc-burger-btn ${escCurrent?.id===b.id?'esc-active':''}" onclick="escSelect('${b.id}')">
+        <span style="font-size:13px;font-weight:500;color:var(--text)">${b.name}</span>
+        <span style="font-family:var(--fm);font-size:11px;color:${col}">${fc.toFixed(1)}%</span>
+      </button>`;
+    }).join('');
+}
+
+function escUpdateHeader() {
+  const fcs = ESC_BURGERS.map(b => escCalcCost(b)/(b.pvp/1.10)*100);
+  const costs = ESC_BURGERS.map(b => escCalcCost(b));
+  document.getElementById('esc-fc-avg').textContent = (fcs.reduce((a,b)=>a+b,0)/fcs.length).toFixed(1)+'%';
+  document.getElementById('esc-cost-avg').textContent = '€'+(costs.reduce((a,b)=>a+b,0)/costs.length).toFixed(2);
+}
+
+function escRefresh() {
+  escRenderList();
+  escUpdateHeader();
+  if (escCurrent === 'comparativa') escShowComparativa();
+  else if (escCurrent) escRender(escCurrent);
+}
+
+function escSelect(id) {
+  escCurrent = ESC_BURGERS.find(b => b.id === id);
+  escRenderList();
+  escRender(escCurrent);
+}
+
+function escRender(b) {
+  const cost = escCalcCost(b);
+  const pvpNeto = b.pvp / 1.10;
+  const fc = cost / pvpNeto * 100;
+  const margen = pvpNeto - cost;
+  const col = escFcColor(fc);
+
+  const ingRows = b.ings.map(ing => {
+    const p = ESC_PRICES[ing.key]; if (!p) return '';
+    let ingCost;
+    if (ing.key === 'pan') ingCost = p.price * ing.g;
+    else if (ing.key === 'packaging') ingCost = ing.g;
+    else ingCost = (p.price / 1000) * ing.g;
+    const pct = (ingCost/cost*100).toFixed(1);
+    const priceStr = ing.key === 'pan' ? `€${p.price.toFixed(2)}/ud` :
+                     ing.key === 'packaging' ? `€0,2475/ud` :
+                     `€${p.price.toFixed(3)}/kg`;
+    return `<tr>
+      <td><div style="font-weight:500">${p.label}</div><div style="font-size:11px;color:var(--muted)">${ing.note}</div></td>
+      <td><input class="esc-g-input" type="number" value="${ing.g}"
+        oninput="escUpdateG('${b.id}','${ing.key}',this.value)">
+        <span style="font-size:10px;color:var(--muted);margin-left:2px">${ing.key==='pan'?'ud':'g'}</span></td>
+      <td style="font-family:var(--fm);font-size:11px;color:var(--muted)">${priceStr}</td>
+      <td style="font-family:var(--fm);color:var(--amber)">€${ingCost.toFixed(3)}</td>
+      <td style="font-family:var(--fm);font-size:11px;color:var(--muted)">${pct}%</td>
+    </tr>`;
+  }).join('');
+
+  const steps = b.armado.map((s,i) =>
+    `<div style="display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:12px;color:var(--muted)">
+      <span style="width:16px;height:16px;background:var(--accent);border-radius:50%;font-size:9px;font-weight:700;color:#000;display:inline-flex;align-items:center;justify-content:center">${i+1}</span>${s}</div>`
+  ).join('');
+
+  document.getElementById('esc-content').innerHTML = `
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+        <div>
+          <div style="font-size:26px;font-weight:800">${b.name}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">${b.desc}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:var(--fm);font-size:24px;color:var(--accent)">€${b.pvp.toFixed(2)}</div>
+          <div style="font-size:10px;color:var(--muted)">PVP carta</div>
+        </div>
+      </div>
+
+      <div class="esc-kpi-strip">
+        <div class="esc-kpi"><div class="esc-kpi-val" style="color:var(--text)">€${cost.toFixed(3)}</div><div class="esc-kpi-label">Costo total</div></div>
+        <div class="esc-kpi"><div class="esc-kpi-val" style="color:${col}">${fc.toFixed(1)}%</div><div class="esc-kpi-label">Food cost</div></div>
+        <div class="esc-kpi"><div class="esc-kpi-val" style="color:var(--green)">€${margen.toFixed(2)}</div><div class="esc-kpi-label">Margen neto/ud</div></div>
+        <div class="esc-kpi"><div class="esc-kpi-val" style="color:var(--text)">€${pvpNeto.toFixed(2)}</div><div class="esc-kpi-label">PVP sin IVA</div></div>
+        <div class="esc-kpi"><div class="esc-kpi-val" style="color:var(--text)">€${(b.pvp-cost).toFixed(2)}</div><div class="esc-kpi-label">Margen bruto</div></div>
+      </div>
+
+      <div style="margin-bottom:16px">
+        <div style="font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Food cost ${fc.toFixed(1)}% — objetivo &lt;35%</div>
+        <div class="esc-fc-bar"><div class="esc-fc-fill" style="width:${Math.min(fc,60)/60*100}%;background:${col}"></div></div>
+      </div>
+
+      <div style="font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Desglose ingredientes</div>
+      <table class="esc-ing-table">
+        <thead><tr><th>Ingrediente</th><th>Cantidad</th><th>Precio</th><th>Costo</th><th>%</th></tr></thead>
+        <tbody>${ingRows}
+          <tr style="border-top:1px solid var(--border)">
+            <td colspan="3" style="font-weight:600;padding-top:10px;color:var(--muted)">TOTAL</td>
+            <td style="font-family:var(--fm);font-size:15px;font-weight:600;color:var(--amber);padding-top:10px">€${cost.toFixed(3)}</td>
+            <td style="font-family:var(--fm);padding-top:10px;color:var(--muted)">100%</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div style="font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Orden de armado</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px">${steps}</div>
+
+      <div style="font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Notas</div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--muted);line-height:1.7">${b.notas||'Sin notas.'}</div>
+
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button onclick="escOpenEdit('${b.id}')" class="btn" style="border:1px solid var(--border);font-size:12px">✏️ Editar</button>
+        <button onclick="escDelete('${b.id}')" class="btn" style="border:1px solid var(--red);color:var(--red);font-size:12px">🗑 Eliminar</button>
+      </div>
+    </div>`;
+}
+
+function escUpdateG(id, key, val) {
+  const b = ESC_BURGERS.find(b=>b.id===id);
+  const ing = b.ings.find(i=>i.key===key);
+  if (ing) { ing.g = parseFloat(val)||0; escRefresh(); }
+}
+
+function escShowComparativa() {
+  escCurrent = 'comparativa';
+  escRenderList();
+  const cards = ESC_BURGERS.map(b => {
+    const cost = escCalcCost(b);
+    const fc = cost/(b.pvp/1.10)*100;
+    const col = escFcColor(fc);
+    return `<div class="comp-card" onclick="escSelect('${b.id}')">
+      <div style="font-weight:600;margin-bottom:4px">${b.name}</div>
+      <div style="font-family:var(--fm);font-size:18px;color:var(--amber)">€${cost.toFixed(2)}</div>
+      <div style="font-family:var(--fm);font-size:11px;color:${col}">FC: ${fc.toFixed(1)}% · Margen: €${(b.pvp/1.10-cost).toFixed(2)}</div>
+      <div style="height:3px;background:rgba(255,255,255,0.07);border-radius:2px;margin-top:8px;overflow:hidden">
+        <div style="height:100%;width:${Math.min(fc,50)/50*100}%;background:${col};border-radius:2px"></div></div>
+    </div>`;
+  }).join('');
+
+  const rows = [...ESC_BURGERS].sort((a,b)=>escCalcCost(a)-escCalcCost(b)).map(b => {
+    const cost = escCalcCost(b);
+    const pvpNeto = b.pvp/1.10;
+    const fc = cost/pvpNeto*100;
+    const col = escFcColor(fc);
+    return `<tr>
+      <td style="font-weight:600">${b.name}</td>
+      <td style="font-family:var(--fm)">€${b.pvp.toFixed(2)}</td>
+      <td style="font-family:var(--fm)">€${pvpNeto.toFixed(2)}</td>
+      <td style="font-family:var(--fm)">€${cost.toFixed(3)}</td>
+      <td style="font-family:var(--fm);color:${col}">${fc.toFixed(1)}%</td>
+      <td style="font-family:var(--fm);color:var(--green)">€${(pvpNeto-cost).toFixed(2)}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('esc-content').innerHTML = `
+    <div class="card">
+      <div class="ct" style="margin-bottom:14px">📊 Comparativa de todas las hamburguesas</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:20px">${cards}</div>
+      <div style="font-size:10px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Tabla ordenada por costo (menor → mayor)</div>
+      <div class="tw"><table class="esc-ing-table" style="width:100%">
+        <thead><tr><th>Burger</th><th>PVP carta</th><th>PVP neto</th><th>Costo</th><th>Food cost</th><th>Margen neto</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:12px;color:var(--muted);margin-top:12px">
+        <strong style="color:var(--text)">Objetivo:</strong> Food cost &lt;35% ·
+        <span style="color:var(--green)">■</span> &lt;33% ·
+        <span style="color:var(--amber)">■</span> 33–38% ·
+        <span style="color:var(--red)">■</span> &gt;38% · Hacé click en cualquier burger para ver detalle.
+      </div>
+    </div>`;
+}
+
+function escDelete(id) {
+  if (!confirm('¿Eliminar esta hamburguesa?')) return;
+  ESC_BURGERS = ESC_BURGERS.filter(b=>b.id!==id);
+  escCurrent = null;
+  escRefresh();
+  document.getElementById('esc-content').innerHTML = '<div class="card" style="text-align:center;padding:40px;color:var(--muted)">Hamburguesa eliminada.</div>';
+}
+
+// ─── MODAL ───
+function escOpenAdd() {
+  escEditingId = null; escNewIngs = [];
+  ['esc-new-name','esc-new-desc','esc-new-pvp','esc-new-armado','esc-new-notas'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('esc-modal-title').textContent = 'Nueva hamburguesa';
+  escAddIngRow();
+  document.getElementById('esc-modal').style.display='flex';
+}
+
+function escOpenEdit(id) {
+  const b = ESC_BURGERS.find(b=>b.id===id);
+  escEditingId = id;
+  escNewIngs = b.ings.map(i=>({...i}));
+  document.getElementById('esc-new-name').value = b.name;
+  document.getElementById('esc-new-desc').value = b.desc;
+  document.getElementById('esc-new-pvp').value = b.pvp;
+  document.getElementById('esc-new-armado').value = b.armado.join(' → ');
+  document.getElementById('esc-new-notas').value = b.notas||'';
+  document.getElementById('esc-modal-title').textContent = 'Editar '+b.name;
+  escRenderIngRows();
+  document.getElementById('esc-modal').style.display='flex';
+}
+
+function escAddIngRow(key='carne',g=0) {
+  escNewIngs.push({key,g});
+  escRenderIngRows();
+}
+
+function escRenderIngRows() {
+  const opts = Object.entries(ESC_PRICES).map(([k,p])=>`<option value="${k}">${p.label}</option>`).join('');
+  document.getElementById('esc-ing-rows').innerHTML = escNewIngs.map((r,i)=>`
+    <div style="display:grid;grid-template-columns:1fr 70px 28px;gap:6px;margin-bottom:6px;align-items:center">
+      <select class="form-ctrl" onchange="escNewIngs[${i}].key=this.value" style="font-size:12px">
+        ${Object.entries(ESC_PRICES).map(([k,p])=>`<option value="${k}" ${k===r.key?'selected':''}>${p.label}</option>`).join('')}
+      </select>
+      <input class="form-ctrl" type="number" placeholder="g/ud" value="${r.g||''}"
+        oninput="escNewIngs[${i}].g=parseFloat(this.value)||0" style="font-size:12px;text-align:right">
+      <button onclick="escNewIngs.splice(${i},1);escRenderIngRows()"
+        style="background:none;border:1px solid var(--border);border-radius:6px;color:var(--red);cursor:pointer;padding:4px">×</button>
+    </div>`).join('');
+}
+
+function escSaveBurger() {
+  const name = document.getElementById('esc-new-name').value.trim();
+  const pvp = parseFloat(document.getElementById('esc-new-pvp').value)||0;
+  if (!name||!pvp) { alert('Nombre y PVP obligatorios'); return; }
+  const b = {
+    id: escEditingId || name.toLowerCase().replace(/\s+/g,'-'),
+    name, pvp,
+    desc: document.getElementById('esc-new-desc').value.trim(),
+    armado: document.getElementById('esc-new-armado').value.split('→').map(s=>s.trim()).filter(Boolean),
+    notas: document.getElementById('esc-new-notas').value.trim(),
+    ings: escNewIngs.filter(r=>r.g>0).map(r=>({key:r.key,g:r.g,note:r.key==='pan'?`${r.g} ud`:`${r.g}g`}))
+  };
+  if (escEditingId) { const idx=ESC_BURGERS.findIndex(x=>x.id===escEditingId); ESC_BURGERS[idx]=b; }
+  else ESC_BURGERS.push(b);
+  escCloseModal();
+  escRefresh();
+  escSelect(b.id);
+}
+
+function escCloseModal() {
+  document.getElementById('esc-modal').style.display='none';
+}
+
+document.getElementById('esc-modal').addEventListener('click', e=>{
+  if (e.target===document.getElementById('esc-modal')) escCloseModal();
+});
+
+// Init cuando se carga la sección
+document.addEventListener('DOMContentLoaded', escInit);
+setTimeout(escInit, 500);
+</script>
+<!-- BEBIDAS + PATATAS section -->
+  <div style="margin-top:24px">
+    <div class="ph" style="margin-bottom:16px">
+      <div><div class="pt" style="font-size:16px">Bebidas y acompañamientos</div>
+      <div class="ps">Costos calculados con facturas reales · IVA bebidas 21% · IVA resto 10%</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="ct">🍺 Cervezas y Vermut</div>
+        <div class="alert ag" style="margin-bottom:12px"><span class="ai">✅</span><div>Copa Estrella FC <strong>18,1%</strong> — 30L ÷ 300ml = 100 copas × €0,45 = €2,03 margen/copa · <strong>€203 de margen por barril</strong>. Muy rentable.</div></div>
+        <div class="tw"><table>
+          <thead><tr><th>Producto</th><th>Costo real</th><th>Fuente</th><th>PVP</th><th>PVP neto</th><th>FC%</th><th>Margen/ud</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Copa Estrella Galicia</strong><div style="font-size:11px;color:var(--muted)">Barril 30L → 100 copas 300ml</div></td><td style="font-family:var(--fm)">€0,450</td><td style="font-size:11px;color:var(--muted)">Crusat ~€45/barril neto</td><td style="font-family:var(--fm)">€3,00</td><td style="font-family:var(--fm)">€2,48</td><td><span class="b bok">18,1%</span></td><td style="font-family:var(--fm);color:var(--green)">€2,03</td></tr>
+            <tr><td><strong>Botella 00% Tostada</strong><div style="font-size:11px;color:var(--muted)">Estrella 0,0 Tostada</div></td><td style="font-family:var(--fm)">€1,20</td><td style="font-size:11px;color:var(--muted)">Estimado — confirmar</td><td style="font-family:var(--fm)">€3,00</td><td style="font-family:var(--fm)">€2,48</td><td><span class="b bbd">48,4%</span></td><td style="font-family:var(--fm)">€1,28</td></tr>
+            <tr><td><strong>Botella 00% Galicia</strong><div style="font-size:11px;color:var(--muted)">Estrella 0,0 standard</div></td><td style="font-family:var(--fm)">€0,90</td><td style="font-size:11px;color:var(--muted)">Estimado — confirmar</td><td style="font-family:var(--fm)">€3,00</td><td style="font-family:var(--fm)">€2,48</td><td><span class="b bwn">36,3%</span></td><td style="font-family:var(--fm);color:var(--green)">€1,58</td></tr>
+            <tr><td><strong>Cerveza Importada</strong><div style="font-size:11px;color:var(--muted)">Botella — marca por definir</div></td><td style="font-family:var(--fm)">€1,50</td><td style="font-size:11px;color:var(--muted)">Estimado — confirmar</td><td style="font-family:var(--fm)">€4,00</td><td style="font-family:var(--fm)">€3,31</td><td><span class="b bbd">45,4%</span></td><td style="font-family:var(--fm)">€1,81</td></tr>
+            <tr><td><strong>Vermut con soda</strong><div style="font-size:11px;color:var(--muted)">Crusat en vaso 355cc</div></td><td style="font-family:var(--fm)">€0,85</td><td style="font-size:11px;color:var(--muted)">Fra. Crusat estimado</td><td style="font-family:var(--fm)">€4,00</td><td style="font-family:var(--fm)">€3,31</td><td><span class="b bok">25,7%</span></td><td style="font-family:var(--fm);color:var(--green)">€2,46</td></tr>
+            <tr><td><strong>Clara</strong><div style="font-size:11px;color:var(--muted)">Copa + limón/granadina</div></td><td style="font-family:var(--fm)">~€0,60</td><td style="font-size:11px;color:var(--muted)">Estimado</td><td style="font-family:var(--fm)">€3,00</td><td style="font-family:var(--fm)">€2,48</td><td><span class="b bok">24,2%</span></td><td style="font-family:var(--fm);color:var(--green)">€1,88</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="ct">🥤 Sin alcohol + Patatas + Kesito</div>
+        <div class="tw"><table>
+          <thead><tr><th>Producto</th><th>Costo real</th><th>Fuente</th><th>PVP</th><th>PVP neto</th><th>FC%</th><th>Margen/ud</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Refresco</strong><div style="font-size:11px;color:var(--muted)">Coca-Cola, Sprite, Fanta, Fuze Tea, Aquarius</div></td><td style="font-family:var(--fm)">€0,758</td><td style="font-size:11px;color:var(--muted)">Coca-Cola €686/906 uds</td><td style="font-family:var(--fm)">€2,50</td><td style="font-family:var(--fm)">€2,27</td><td><span class="b bok">33,3%</span></td><td style="font-family:var(--fm);color:var(--green)">€1,52</td></tr>
+            <tr><td><strong>Agua (con/sin gas)</strong><div style="font-size:11px;color:var(--muted)">Botella 500ml</div></td><td style="font-family:var(--fm)">~€0,40</td><td style="font-size:11px;color:var(--muted)">Estimado</td><td style="font-family:var(--fm)">€2,50</td><td style="font-family:var(--fm)">€2,27</td><td><span class="b bok">17,6%</span></td><td style="font-family:var(--fm);color:var(--green)">€1,87</td></tr>
+            <tr style="background:rgba(76,175,125,0.05)"><td><strong>Patatas fritas ⭐</strong><div style="font-size:11px;color:var(--muted)">Porción 150g McCain Julienne + aceite + sal BH</div></td><td style="font-family:var(--fm)">€0,456</td><td style="font-size:11px;color:var(--muted)">Makro €5,99/2,5kg + aceite</td><td style="font-family:var(--fm)">€3,00</td><td style="font-family:var(--fm)">€2,73</td><td><span class="b bok">16,7%</span></td><td style="font-family:var(--fm);color:var(--green)">€2,27</td></tr>
+            <tr style="background:rgba(76,175,125,0.05)"><td><strong>Kesito ⭐</strong><div style="font-size:11px;color:var(--muted)">3 lonchas cheddar 45g + pan + salsa BH</div></td><td style="font-family:var(--fm)">€1,123</td><td style="font-size:11px;color:var(--muted)">Queso TGT + pan Palaoa + BH casera</td><td style="font-family:var(--fm)">€6,00</td><td style="font-family:var(--fm)">€5,45</td><td><span class="b bok">20,6%</span></td><td style="font-family:var(--fm);color:var(--green)">€4,33</td></tr>
+          </tbody>
+        </table></div>
+        <div class="alert ag" style="margin-top:12px"><span class="ai">💡</span><div><strong>Patatas y Kesito son los productos con mejor FC</strong> — 16,7% y 20,6%. Cada porción de patatas deja €2,27 de margen con solo €0,46 de costo. El Kesito es el producto más rentable del menú.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="page" id="page-facturas">
+  <div class="ph">
+    <div><div class="pt">Facturas</div><div class="ps">Registro completo · subí fotos en bloques de 10–15 · los datos se acumulan</div></div>
+    <button class="btn btp" onclick="exportFacturas()">↓ Exportar para gestor</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('facturas','subir',this)">📸 Subir facturas</div>
+    <div class="tab" onclick="showTab('facturas','registro',this)">📋 Registro (<span id="fact-count">62</span>)</div>
+    <div class="tab" onclick="showTab('facturas','pendientes',this)">⚠️ Pendientes (<span id="pend-count">2</span>)</div>
+    <div class="tab" onclick="showTab('facturas','cruce',this)">🔁 Cruce banco</div>
+  </div>
+
+  <!-- SUBIR -->
+  <div class="tab-pane active" id="tp-facturas-subir">
+    <div class="g2">
+      <div class="card">
+        <div class="ct">📸 Subir fotos de facturas</div>
+        <div class="uz" onclick="document.getElementById('fact-imgs').click()">
+          <div class="uicon">🧾</div>
+          <div class="utxt">Subí hasta 15 fotos a la vez</div>
+          <div class="uhint">JPG o PNG · la IA extrae todos los datos automáticamente</div>
+        </div>
+        <input type="file" id="fact-imgs" accept="image/*" multiple onchange="previewFacturas(this)">
+        <div id="fact-queue" style="margin-top:12px"></div>
+      </div>
+      <div class="card">
+        <div class="ct">✏️ Añadir factura manualmente</div>
+        <div class="fg fg2">
+          <div class="fl"><label>Fecha</label><input type="date" id="f-fecha"></div>
+          <div class="fl"><label>Proveedor</label><input type="text" id="f-prov" placeholder="Nombre"></div>
+          <div class="fl"><label>Nº Factura</label><input type="text" id="f-num" placeholder="—"></div>
+          <div class="fl"><label>Concepto</label><input type="text" id="f-conc" placeholder="Descripción"></div>
+          <div class="fl"><label>Base imponible (€)</label><input type="number" id="f-base" placeholder="0.00" step="0.01"></div>
+          <div class="fl"><label>IVA %</label><select id="f-iva"><option value="21">21%</option><option value="10">10%</option><option value="4">4%</option><option value="0">0%</option></select></div>
+        </div>
+        <div class="fg fg2">
+          <div class="fl"><label>Categoría</label>
+            <select id="f-cat">
+              <option>Materia prima - Carne</option><option>Materia prima - Pan</option><option>Materia prima - Condimentos</option>
+              <option>Bebidas</option><option>Packaging</option><option>Maquinaria / Equipamiento</option>
+              <option>Mobiliario local</option><option>Alquiler</option><option>Suministros (luz/gas/agua)</option>
+              <option>Sueldos / Nóminas</option><option>Gestoría / Asesoría</option><option>Marketing</option>
+              <option>Obra y construcción</option><option>Transporte / Viajes</option><option>Limpieza y varios</option>
+            </select>
+          </div>
+          <div class="fl"><label>Forma de pago</label>
+            <select id="f-pago"><option>Efectivo</option><option>Tarjeta</option><option>Transferencia</option><option>Domiciliación</option></select>
+          </div>
+        </div>
+        <button class="btn btp" onclick="addFactura()">+ Registrar factura</button>
+      </div>
+    </div>
+
+    <!-- Facturas Makro en efectivo ya leídas -->
+    <div class="alert ag"><span class="ai">✅</span><div><strong>Facturas leídas de las fotos que subiste:</strong> Makro 10/04 (€742,23 efectivo) y Makro 28/04 (€219,62 efectivo) ya procesadas. Confirmá para registrarlas.</div></div>
+    <div class="card">
+      <div class="ct">🤖 Facturas detectadas — pendientes de confirmar</div>
+      <div class="tw"><table>
+        <thead><tr><th>Fuente</th><th>Proveedor</th><th>Fecha</th><th>Concepto resumido</th><th>Base</th><th>IVA</th><th>Total</th><th>Pago</th><th>Acción</th></tr></thead>
+        <tbody>
+          <tr class="ef-cash">
+            <td><span class="b bwn">Foto</span></td>
+            <td><strong>Makro Badalona</strong></td><td>10/04/2026</td>
+            <td>Equipamiento cocina + limpieza + alimentación (101 bultos)</td>
+            <td>€620,09</td><td>€122,14</td><td><strong>€742,23</strong></td>
+            <td><span class="b bwn">Efectivo</span></td>
+            <td><button class="btn btg" onclick="confirmarFactura(this,'Makro Badalona','10/04/2026','742.23','Efectivo')">✓ Confirmar</button></td>
+          </tr>
+          <tr class="ef-cash">
+            <td><span class="b bwn">Foto</span></td>
+            <td><strong>Makro Badalona</strong></td><td>28/04/2026</td>
+            <td>Limpieza, termómetro, utensilios cocina (35 bultos)</td>
+            <td>€180,68</td><td>€37,94</td><td><strong>€219,62</strong></td>
+            <td><span class="b bwn">Efectivo</span></td>
+            <td><button class="btn btg" onclick="confirmarFactura(this,'Makro Badalona','28/04/2026','219.62','Efectivo')">✓ Confirmar</button></td>
+          </tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- REGISTRO -->
+  <div class="tab-pane" id="tp-facturas-registro">
+    <div class="card">
+      <div class="ct">📋 Registro completo de facturas</div>
+      <div class="tw"><table id="facturas-table">
+        <thead><tr><th>Fecha</th><th>Proveedor</th><th>Nº</th><th>Concepto</th><th>Base €</th><th>IVA</th><th>Total €</th><th>Categoría</th><th>Pago</th><th>Estado</th></tr></thead>
+        <tbody id="facturas-tbody">
+          <tr class="ef-ok"><td>17/02/26</td><td>Northdeco</td><td>T2694796</td><td>Mesa microcemento</td><td>€512,49</td><td>21%</td><td>€620,10</td><td>Mobiliario</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>18/02/26</td><td>PremiumXL</td><td>8871088</td><td>10 sillas plegables</td><td>€557,00</td><td>21%</td><td>€673,97</td><td>Mobiliario</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>25/02/26</td><td>Themasie</td><td>F18-6154</td><td>Lámparas + taburetes</td><td>€416,03</td><td>21%</td><td>€503,39</td><td>Mobiliario</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>01/02/26</td><td>Finques Perramon</td><td>ReciboV-76</td><td>Alquiler febrero</td><td>€1.275,00</td><td>21%</td><td>€1.301,71</td><td>Alquiler</td><td>Domiciliación</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>02/03/26</td><td>IKEA Ibérica</td><td>ESINV79670</td><td>19 taburetes KYRRE</td><td>€293,15</td><td>21%</td><td>€354,71</td><td>Mobiliario</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>04/03/26</td><td>Diego Mejia Quijije</td><td>2026-0014</td><td>Campana extractora instalación</td><td>€977,38</td><td>21%</td><td>€1.182,63</td><td>Maquinaria</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>06/03/26</td><td>Makro (Freidora)</td><td>F26-03462599</td><td>Freidora doble profesional</td><td>€359,00</td><td>21%</td><td>€434,39</td><td>Maquinaria</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>17/03/26</td><td>Ferran BCN SL</td><td>9546</td><td>Anticipo microcemento obra</td><td>€2.220,00</td><td>21%</td><td>€2.686,20</td><td>Obra</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>17/03/26</td><td>Sklum</td><td>F11-150540</td><td>4 mesas inox + lámparas</td><td>€852,46</td><td>21%</td><td>€1.031,48</td><td>Mobiliario</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>31/03/26</td><td>Catering Cabeza SL</td><td>1006979</td><td>Plancha cocina Fry-Top Gas</td><td>€2.199,83</td><td>21%</td><td>€2.661,79</td><td>Maquinaria</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>09/02/26</td><td>Muñoz Bosch SLU</td><td>FV162590</td><td>Papel antigrasa + aluminio</td><td>€94,54</td><td>21%</td><td>€114,39</td><td>Packaging</td><td>Contado</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>17/04/26</td><td>MCPack La Comercial</td><td>20261664</td><td>5.630 bolsas SOS grandes</td><td>€1.061,25</td><td>21%</td><td>€1.284,11</td><td>Packaging</td><td>Vencimientos</td><td><span class="b bwn">⚠ Vence jun/jul</span></td></tr>
+          <tr class="ef-ok"><td>17/04/26</td><td>MCPack La Comercial</td><td>20261665</td><td>5.000 bolsas SOS pequeñas</td><td>€715,00</td><td>21%</td><td>€865,15</td><td>Packaging</td><td>Vencimientos</td><td><span class="b bwn">⚠ Vence jun/jul</span></td></tr>
+          <tr class="ef-ok"><td>20/04/26</td><td>AFG Clima SL</td><td>PRO260562</td><td>2 mesas trabajo inox cocina</td><td>€272,73</td><td>21%</td><td>€330,00</td><td>Maquinaria</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>30/04/26</td><td>Carnival BCN SL</td><td>2026/0410</td><td>Carne tickets 17–29 abril</td><td>€2.699,74</td><td>10%</td><td>€2.969,71</td><td>Carne</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>30/04/26</td><td>Palaoa & Wai SL</td><td>53</td><td>384 panes + envío</td><td>€238,40</td><td>4%</td><td>€249,30</td><td>Pan</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>30/04/26</td><td>Alan Morsellino</td><td>Nómina abr</td><td>Nómina cocinero 20–30 abril</td><td>€444,45</td><td>—</td><td>€444,45</td><td>Nóminas</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-cash"><td>10/04/26</td><td>Makro Badalona</td><td>0/0(007)0003/(2026)006082</td><td>Equipamiento + limpieza + alimentación</td><td>€620,09</td><td>21%</td><td>€742,23</td><td>Varios</td><td><span class="b bwn">Efectivo</span></td><td><span class="b bwn">💵 Cash</span></td></tr>
+          <tr class="ef-cash"><td>28/04/26</td><td>Makro Badalona</td><td>0/0(007)0212/(2026)003109</td><td>Limpieza + utensilios cocina</td><td>€180,68</td><td>21%</td><td>€219,62</td><td>Varios</td><td><span class="b bwn">Efectivo</span></td><td><span class="b bwn">💵 Cash</span></td></tr>
+          <tr class="ef-ok"><td>02/04/26</td><td>Finques Perramon</td><td>Recibo abr</td><td>Alquiler abril 2026</td><td>€1.275,00</td><td>21%</td><td>€1.301,71</td><td>Alquiler</td><td>Domiciliación</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>05/05/26</td><td>Finques Perramon</td><td>Recibo may</td><td>Alquiler mayo 2026</td><td>€1.275,00</td><td>21%</td><td>€1.301,71</td><td>Alquiler</td><td>Domiciliación</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>16/03/26</td><td>Ecoservei SL</td><td>006022</td><td>Vinilo rotulación local</td><td>€111,57</td><td>21%</td><td>€135,00</td><td>Marketing</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>07/05/26</td><td>Eni Plenitude</td><td>F26ES-01413978</td><td>Luz mayo</td><td>€164,84</td><td>21%</td><td>€199,46</td><td>Suministros</td><td>Domiciliación</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>22/04/26</td><td>Lligona Abogados</td><td>A-8987</td><td>Honorarios abogados</td><td>€250,00</td><td>21%</td><td>€302,50</td><td>Asesoría</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <!-- ── LOTE FOTOS MAYO 2026 ── -->
+          <tr class="ef-ok"><td>22/04/26</td><td>Ecoservei Digital</td><td>008265</td><td>Impresión menús color</td><td>€37,36</td><td>21%</td><td>€45,20</td><td>Marketing</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>22/04/26</td><td>Ferreterías Jaime Valls</td><td>260301552</td><td>Ferretería — fluorescente, silicona, herramientas</td><td>€121,82</td><td>21%</td><td>€147,40</td><td>Mantenimiento</td><td>Contado</td><td><span class="b bok">✅ Cobrat</span></td></tr>
+          <tr class="ef-cash"><td>21/04/26</td><td>Basar Jiahong</td><td>2545</td><td>Material menaje / bazar (varios)</td><td>€79,07</td><td>21%</td><td>€95,68</td><td>Varios</td><td><span class="b bwn">Efectivo</span></td><td><span class="b bwn">💵 Cash</span></td></tr>
+          <tr class="ef-cash"><td>23/04/26</td><td>La Sagrada</td><td>3101</td><td>Material bazar / apertura</td><td>€23,93</td><td>21%</td><td>€28,95</td><td>Varios</td><td><span class="b bwn">Efectivo</span></td><td><span class="b bwn">💵 Cash</span></td></tr>
+          <tr class="ef-cash"><td>24/04/26</td><td>Basar Jiahong</td><td>2553</td><td>Material bazar varios</td><td>€31,33</td><td>21%</td><td>€37,91</td><td>Varios</td><td><span class="b bwn">Efectivo</span></td><td><span class="b bwn">💵 Cash</span></td></tr>
+          <tr class="ef-cash"><td>24/04/26</td><td>Makro Badalona</td><td>0/0(000)0202/(2026)000557</td><td>Patatas McCain + bacon + cubetas inox</td><td>€170,47</td><td>Mixto</td><td>€190,33</td><td>Materia prima</td><td><span class="b bwn">Efectivo</span></td><td><span class="b bwn">💵 Cash</span></td></tr>
+          <tr class="ef-cash"><td>25/04/26</td><td>Charter / Unified Mizan</td><td>26/04</td><td>Patatas, tomate, varios</td><td>€39,14</td><td>Mixto</td><td>€40,83</td><td>Materia prima</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>16/04/26</td><td>Crusat (Vinos Isabel Mª)</td><td>FP26019974</td><td>2 barriles Estrella Galicia 30L</td><td>€90,27</td><td>21%</td><td>€109,23</td><td>Bebidas</td><td>Metálico</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>20/04/26</td><td>Crusat (Vinos Isabel Mª)</td><td>FP26020569</td><td>Estrella Galicia + vermut + Rivera</td><td>€510,15</td><td>21%</td><td>€603,24</td><td>Bebidas</td><td>Crédito seguro</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>17/04/26</td><td>Comestibles Zafon / B Grup</td><td>052141+052142</td><td>Salsas Heinz — ketchup, mostaza, mayonesa</td><td>€131,02</td><td>10%</td><td>€159,11</td><td>Materia prima</td><td>Tarjeta crédito</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>20/04/26</td><td>Comestibles Zafon / B Grup</td><td>053347</td><td>Ketchup Heinz cubo 5,7kg</td><td>€17,60</td><td>10%</td><td>€19,36</td><td>Materia prima</td><td>Contado</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>21/04/26</td><td>IKEA Badalona</td><td>ORD_280_2026_0010283</td><td>Cajas Samla, estant. Hejne, ganchos</td><td>€103,65</td><td>21%</td><td>€120,41</td><td>Equipamiento</td><td>Efectivo</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>21/04/26</td><td>Hostelclima</td><td>—</td><td>Reparación maquinaria — soldadura tuberías</td><td>€163,91</td><td>21%</td><td>€198,33</td><td>Mantenimiento</td><td>—</td><td><span class="b bwn">⚠ Verificar</span></td></tr>
+          <tr class="ef-ok"><td>16/04/26</td><td>Ca l'Agustí / Verdflor SL</td><td>1/0001995</td><td>Plantas decoración local (interior + exterior)</td><td>€359,70</td><td>Mixto</td><td>€408,60</td><td>Decoración</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>21/04/26</td><td>Makro Badalona</td><td>0/0(007)0003/(2026)007613</td><td>Limpieza profesional + menaje cocina</td><td>€246,68</td><td>21%</td><td>€294,03</td><td>Limpieza</td><td>Efectivo</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>16/04/26</td><td>Makro Badalona</td><td>0/0(007)0003/(2026)006803</td><td>Patatas, bacon, Beyond Meat, aceite, especias, placa inducción</td><td>€704,34</td><td>Mixto</td><td>€800,20</td><td>Materia prima + maq.</td><td>Efectivo</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>06/03/26</td><td>Makro.es Marketplace</td><td>F26-03464553</td><td>Lámpara calentadora patatas GN 1/1 Casselin</td><td>€234,00</td><td>21%</td><td>€283,14</td><td>Maquinaria</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>28/04/26</td><td>Makro.es Marketplace</td><td>F26-03597537</td><td>Papelera exterior inox 65L</td><td>€55,90</td><td>0%</td><td>€55,90</td><td>Equipamiento</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>06/03/26</td><td>Gastrovertriebskontor GmbH</td><td>AR202603068578</td><td>Rodillo mantequilla inox GN 1/6</td><td>€51,33</td><td>21%</td><td>€62,11</td><td>Equipamiento</td><td>Makro Marketplace</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>18/02/26</td><td>Premium.xl / HT Trade</td><td>8871088</td><td>10 sillas plegables azul marino Pornainen</td><td>€557,00</td><td>21%</td><td>€673,97</td><td>Mobiliario</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>16/02/26</td><td>Vueling</td><td>OEUEJY</td><td>Vuelo BCN-ALC-BCN (Santi + Tomi)</td><td>€244,60</td><td>21%</td><td>€295,96</td><td>Transporte</td><td>Tarjeta</td><td><span class="b bwn">⚠ Justificar</span></td></tr>
+          <tr class="ef-ok"><td>23/01/26</td><td>Uber</td><td>FHCJHCAB-03-2026-0000097</td><td>Servicio transporte Tomi</td><td>€8,09</td><td>10%</td><td>€8,90</td><td>Transporte</td><td>App</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <!-- ── LOTE CRUCE BANCO 15/05 ── -->
+          <tr class="ef-ok"><td>10/04/26</td><td>Rotula Tu Mismo SL</td><td>CU314252</td><td>Rótulo luminoso LED 120×55cm personalizado</td><td>€279,56</td><td>21%</td><td>€338,26</td><td>Marketing</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>13/04/26</td><td>Técnicas en Marcaje / Misplacas</td><td>0004572</td><td>Caja de luz 35×35×35cm con LEDs</td><td>€230,00</td><td>21%</td><td>€278,30</td><td>Marketing</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>06/04/26</td><td>Makro.es Marketplace</td><td>F26-03535048</td><td>Envasadora al vacío GVS1001 + papelera exterior</td><td>€518,19</td><td>0%</td><td>€518,19</td><td>Maquinaria</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>09/04/26</td><td>Makro.es Marketplace</td><td>F26-03548517</td><td>Espátulas, mangas, pinzas, portarrecibos inox</td><td>€51,85</td><td>0%</td><td>€51,85</td><td>Equipamiento</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>09/04/26</td><td>La Tienda Electricidad / Makro mkt</td><td>331392</td><td>Cleaning Block barbacoa ×2</td><td>€9,11</td><td>21%</td><td>€11,02</td><td>Limpieza</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>10/04/26</td><td>Garcia de Pou SA / Makro mkt</td><td>F01955826</td><td>Pala para fritas 1 asa inox 20×22cm</td><td>€13,30</td><td>21%</td><td>€16,09</td><td>Equipamiento</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>17/04/26</td><td>Vevor / Indepsale Technology</td><td>ES20260416000860</td><td>Mesa preparación inox 60×90×80cm 750kg</td><td>€65,21</td><td>21%</td><td>€78,90</td><td>Equipamiento</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>08/04/26</td><td>Mayor Electronics SLU</td><td>F7000218153</td><td>Pack audio: amplif. PV240BT + 4 altavoces BGO30 + 100m cable</td><td>€296,69</td><td>21%</td><td>€359,00</td><td>Equipamiento</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>10/02/26</td><td>GrowPro Asesoría (Irene Canovi)</td><td>2025-67</td><td>Asesoría feb + certificados digitales</td><td>€192,65</td><td>Exento</td><td>€192,65</td><td>Asesoría</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>10/03/26</td><td>GrowPro Asesoría</td><td>2026-103</td><td>Asesoría fiscal-contable marzo</td><td>€160,00</td><td>Exento</td><td>€160,00</td><td>Asesoría</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>10/04/26</td><td>GrowPro Asesoría</td><td>2026-139</td><td>Asesoría fiscal-contable abril</td><td>€160,00</td><td>Exento</td><td>€160,00</td><td>Asesoría</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-ok"><td>10/05/26</td><td>GrowPro Asesoría</td><td>2026-181</td><td>Asesoría may + nóminas socios + altas trabajadores</td><td>€340,00</td><td>Exento</td><td>€340,00</td><td>Asesoría</td><td>Transferencia</td><td><span class="b bwn">⚠ Vence 20/05</span></td></tr>
+          <!-- ── LOTE SEMANA 4 · 19/05/2026 ── -->
+          <tr class="ef-ok"><td>13/05/26</td><td>La Sagrada</td><td>3126</td><td>Compra operación bazar</td><td>—</td><td>21%</td><td>€29,99</td><td>Varios</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-warn"><td>13/05/26</td><td>TGT Teodoro García</td><td>1086065639</td><td>Queso — vence 28/05 ⚠️</td><td>—</td><td>—</td><td>€153,51</td><td>Materia prima</td><td>Domiciliación</td><td><span class="b bwn">⚠ Vence 28/05</span></td></tr>
+          <tr class="ef-ok"><td>15/05/26</td><td>Sosa Gastón / GrowPro may</td><td>2026-181</td><td>Pago asesoría + nóminas mayo</td><td>€340,00</td><td>Exento</td><td>€340,00</td><td>Asesoría</td><td>Transferencia</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-warn"><td>15/05/26</td><td>Makro.es</td><td>O26-786629626906</td><td>Compra marketplace — falta descargar factura</td><td>—</td><td>0%</td><td>€55,90</td><td>Equipamiento</td><td>Tarjeta</td><td><span class="b bbd">⚠ Falta fra.</span></td></tr>
+          <tr class="ef-ok"><td>18/05/26</td><td>Claude.ai / Anthropic</td><td>—</td><td>Suscripción Claude Pro (herramienta gestión)</td><td>—</td><td>21%</td><td>€21,78</td><td>Servicios dig.</td><td>Tarjeta</td><td><span class="b bok">✅ Banco</span></td></tr>
+          <tr class="ef-falta"><td>Mayo 2026</td><td class="falta">Carnival BCN SL</td><td>PENDIENTE</td><td>Carne mayo — falta factura mensual</td><td>—</td><td>10%</td><td>—</td><td>Carne</td><td>Transferencia</td><td><span class="b bbd">⚠ FALTA</span></td></tr>
+          <tr class="ef-falta"><td>07/05/26</td><td class="falta">Coca-Cola Europacific</td><td>PENDIENTE</td><td>Bebidas €686,31 pagado</td><td>—</td><td>10%</td><td>€686,31</td><td>Bebidas</td><td>Domiciliación</td><td><span class="b bbd">⚠ FALTA</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- PENDIENTES -->
+  <div class="tab-pane" id="tp-facturas-pendientes">
+    <div class="alert ab"><span class="ai">🔴</span><div>Solo quedan 2 facturas críticas. Conseguilas esta semana para cerrar el IVA de mayo con el gestor.</div></div>
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>Proveedor</th><th>Importe conocido</th><th>Urgencia</th><th>Cómo conseguirla</th></tr></thead>
+        <tbody>
+          <tr class="ef-falta"><td><strong>Carnival BCN SL</strong></td><td>~€2.200 est. mayo (ya pagado en partes)</td><td><span class="b bbd">🔴 Urgente</span></td><td>Llamar al +34 658 790 888 — emiten factura mensual a fin de mes</td></tr>
+          <tr class="ef-falta"><td><strong>Coca-Cola Europacific</strong></td><td>€686,31 (cargo banco 07/05)</td><td><span class="b bbd">🔴 Urgente</span></td><td>Pedir al comercial Coca-Cola o descargar en portal cliente punto venta 872904</td></tr>
+          <tr style="background:var(--color-background-secondary)"><td colspan="4" style="font-size:11px;color:var(--color-text-secondary);padding:8px">Facturas resueltas hoy: Rotula Tu Mismo, Tecnimarc, Makro ×3, Vevor, Mayor Electronics, GrowPro ×4, Hermanos Rivodigo, Garcia de Pou, La Tienda Electricidad</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- CRUCE BANCO -->
+  <div class="tab-pane" id="tp-facturas-cruce">
+    <div class="alert aif"><span class="ai">ℹ️</span><div>Cruce entre movimientos bancarios y facturas recibidas. Verde = cruzado. Amarillo = pagado en efectivo. Rojo = falta factura.</div></div>
+    <div class="card">
+      <div class="tw"><table>
+        <thead><tr><th>Fecha banco</th><th>Concepto banco</th><th>Importe banco</th><th>Factura</th><th>Estado</th></tr></thead>
+        <tbody>
+          <tr class="ef-ok"><td>17/02</td><td>Northdeco</td><td>€620,10</td><td>T2694796 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>17/02</td><td>Catering Cabeza (plancha)</td><td>€2.661,79</td><td>1006979 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>04/03</td><td>Diego Mejia (campana)</td><td>€1.182,63</td><td>2026-0014 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>10/03</td><td>Ferran BCN (microcemento)</td><td>€2.686,20</td><td>9546 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-cash"><td>10/04</td><td>Makro física (efectivo)</td><td>€742,23</td><td>0/0(007)0003/(2026)006082 💵</td><td><span class="b bwn">Efectivo foto</span></td></tr>
+          <tr class="ef-ok"><td>10/04</td><td>Makro marketplace O26-756540</td><td>€1.254,46</td><td>IN-3462599 + IN-3464553 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>20/04</td><td>AFG Clima</td><td>€330,00</td><td>PRO260562 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>22/04</td><td>Lligona Abogados</td><td>€302,50</td><td>A-8987 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-cash"><td>28/04</td><td>Makro física (efectivo)</td><td>€219,62</td><td>0/0(007)0212 💵</td><td><span class="b bwn">Efectivo foto</span></td></tr>
+          <tr class="ef-ok"><td>29/04</td><td>Carnival BCN SL (abril)</td><td>€2.969,71</td><td>2026/0410 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>05/05</td><td>Finques Perramon (alquiler)</td><td>€1.301,71</td><td>Recibo mayo ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>05/05</td><td>Palaoa & Wai (pan)</td><td>€249,30</td><td>Fra 53 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-falta"><td>07/05</td><td>Coca-Cola Europacific</td><td>€686,31</td><td class="falta">SIN FACTURA</td><td><span class="b bbd">Falta</span></td></tr>
+          <tr class="ef-ok"><td>07/05</td><td>Eni Plenitude (luz)</td><td>€199,46</td><td>F26ES-01413978 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>11/05</td><td>Assolim carne</td><td>€163,13</td><td>Factura diaria ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>10/04</td><td>Rotula Tu Mismo — rótulo LED</td><td>€338,26</td><td>Fra. #CU314252 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>13/04</td><td>Tecnimarc / Misplacas — caja luz</td><td>€278,30</td><td>Fra. 0004572 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>06/04</td><td>Makro.es — envasadora vacío + papelera</td><td>€518,19</td><td>Fra. F26-03535048 ✅ (ISP 0%)</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>13/04</td><td>Makro.es — utillaje cocina ×3 pedidos</td><td>€78,96</td><td>F26-03548517 + Fra. 331392 + F01955826 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>17/04</td><td>Vevor — mesa preparación inox</td><td>€78,90</td><td>Fra. ES20260416000860 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>08/04</td><td>Mayor Electronics — pack audio local</td><td>€359,00</td><td>Fra. F7000218153 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>24/02</td><td>GrowPro Asesoría — feb (€160+€32,65)</td><td>€192,65</td><td>Fra. 2025-67 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>11/03</td><td>GrowPro Asesoría — mar</td><td>€160,00</td><td>Fra. 2026-103 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>13/04</td><td>GrowPro Asesoría — abr</td><td>€160,00</td><td>Fra. 2026-139 ✅</td><td><span class="b bok">Cruzado</span></td></tr>
+          <tr class="ef-ok"><td>—</td><td>GrowPro Asesoría — may (vence 20/05)</td><td>€340,00</td><td>Fra. 2026-181 ✅ pdte pago</td><td><span class="b bwn">Pendiente pago</span></td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ PROVEEDORES ═══════════════════════════════ -->
+<section class="page" id="page-proveedores">
+  <div class="ph"><div><div class="pt">Proveedores</div><div class="ps">Gestión y condiciones comerciales</div></div>
+    <button class="btn btp" onclick="document.getElementById('add-prov-form').style.display=document.getElementById('add-prov-form').style.display==='none'?'block':'none'">+ Añadir</button>
+  </div>
+  <div id="add-prov-form" style="display:none" class="card" style="border-color:var(--blue)">
+    <div class="ct">➕ Nuevo proveedor</div>
+    <div class="fg fg3">
+      <div class="fl"><label>Nombre</label><input type="text" id="p-nom" placeholder="Nombre"></div>
+      <div class="fl"><label>Categoría</label><select id="p-cat"><option>Carne</option><option>Pan</option><option>Bebidas</option><option>Packaging</option><option>Suministros</option><option>Servicios</option><option>Maquinaria</option><option>Alquiler</option><option>Otro</option></select></div>
+      <div class="fl"><label>Contacto</label><input type="text" id="p-cont" placeholder="Tel / email"></div>
+      <div class="fl"><label>CIF/NIF</label><input type="text" placeholder="B00000000"></div>
+      <div class="fl"><label>Precio referencia</label><input type="text" placeholder="€/ud o €/kg"></div>
+      <div class="fl"><label>Forma de pago</label><input type="text" placeholder="Contado / 30 días..."></div>
+    </div>
+    <button class="btn btp">Guardar</button>
+  </div>
+  <div class="prov-grid">
+    <div class="prov-card"><div class="prov-name">Carnival BCN SL</div><div class="prov-cat">Carne · B05462015</div><div class="prow"><span>Tel</span>+34 658 790 888</div><div class="prow"><span>Precio</span>Variable / ticket</div><div class="prow"><span>Facturación</span>Mensual</div><div class="prow"><span>Última compra</span>13/05/2026</div><div class="prow"><span>Estado</span><span class="b bok">Activo</span></div></div>
+    <div class="prov-card"><div class="prov-name">Palaoa & Wai SL</div><div class="prov-cat">Pan · B06956221 · c/ Binefar 19</div><div class="prow"><span>Precio</span>€0,60/ud + €8 envío</div><div class="prow"><span>Pago</span>Transferencia</div><div class="prow"><span>Última compra</span>30/04/2026</div><div class="prow"><span>Estado</span><span class="b bok">Activo</span></div></div>
+    <div class="prov-card"><div class="prov-name">Crusat / Vinos Isabel Ma</div><div class="prov-cat">Estrella Galicia · Distribuidor</div><div class="prow"><span>Precio</span>€0,81/ud 1/3 retornable</div><div class="prow"><span>Inversión terraza</span>€1.922 + consumo</div><div class="prow"><span>Última compra</span>12/05/2026</div><div class="prow"><span>Estado</span><span class="b bok">Activo</span></div></div>
+    <div class="prov-card"><div class="prov-name">Coca-Cola Europacific</div><div class="prov-cat">Refrescos</div><div class="prow"><span>Precio</span>€0,72/ud VR 23,7cl</div><div class="prow"><span>Pago</span>Domiciliación mensual</div><div class="prow"><span>Última factura</span>Falta ⚠</div><div class="prow"><span>Estado</span><span class="b bwn">Factura pendiente</span></div></div>
+    <div class="prov-card"><div class="prov-name">Makro Badalona</div><div class="prov-cat">Varios · cash + marketplace</div><div class="prow"><span>Pago</span>Tarjeta + efectivo</div><div class="prow"><span>Última compra</span>12/05/2026</div><div class="prow"><span>Estado</span><span class="b bok">Activo</span></div></div>
+    <div class="prov-card"><div class="prov-name">Assolim Alimentaria</div><div class="prov-cat">Carne / materia prima</div><div class="prow"><span>Pago</span>Domiciliación diaria</div><div class="prow"><span>Última compra</span>13/05/2026</div><div class="prow"><span>Estado</span><span class="b bok">Activo</span></div></div>
+    <div class="prov-card"><div class="prov-name">Finques Perramon SL</div><div class="prov-cat">Alquiler</div><div class="prow"><span>Precio</span>€1.275 + IVA = €1.301,71</div><div class="prow"><span>Pago</span>Domiciliación día 1–5</div><div class="prow"><span>Estado</span><span class="b bok">Activo</span></div></div>
+    <div class="prov-card"><div class="prov-name">Eni Plenitude Iberia</div><div class="prov-cat">Luz + Gas</div><div class="prow"><span>Pago</span>Domiciliación</div><div class="prow"><span>Última factura</span>07/05/2026</div><div class="prow"><span>Estado</span><span class="b bok">Activo</span></div></div>
+    <div class="prov-card"><div class="prov-name">MCPack La Comercial</div><div class="prov-cat">Packaging · bolsas personalizadas</div><div class="prow"><span>Total pedido</span>€2.149,26</div><div class="prow"><span>Vencimientos</span>May/Jun/Jul 2026</div><div class="prow"><span>Estado</span><span class="b bwn">⚠ Vence junio</span></div></div>
+    <div class="prov-card"><div class="prov-name">Sosa Gaston</div><div class="prov-cat">Gestoría / Contabilidad</div><div class="prow"><span>Precio</span>€160/mes</div><div class="prow"><span>Pago</span>Transferencia mensual</div><div class="prow"><span>Estado</span><span class="b bok">Activo</span></div></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ INVERSORES ═══════════════════════════════ -->
+<section class="page" id="page-inversores">
+  <div class="ph"><div><div class="pt">Inversores y recupero</div><div class="ps">Estado real confirmado · Google Sheet actualizado 20/03/2026</div></div></div>
+  <div class="metrics">
+    <div class="metric"><div class="ml">Inversión total real</div><div class="mv">€149.500</div><div class="md">vs €144.500 plan</div></div>
+    <div class="metric bad"><div class="ml">Contingencia disponible</div><div class="mv">€600</div><div class="md dn">Reserva agotada</div></div>
+    <div class="metric"><div class="ml">Recupero estimado</div><div class="mv">33 meses</div><div class="md">Escenario base</div></div>
+    <div class="metric good"><div class="ml">Break-even mensual</div><div class="mv">€24.000</div><div class="md up">Neto sin IVA</div></div>
+  </div>
+  <div class="inv-grid">
+    <div class="inv-card"><div class="inv-name">Santi</div><div class="inv-role">Encargado · socio fundador</div><div class="ir"><span>Comprometido</span><strong>€59.800</strong></div><div class="ir"><span>Aportado</span><strong style="color:var(--green)">€59.846</strong></div><div class="ir"><span>Saldo</span><strong style="color:var(--green)">+€46</strong></div><div class="ir"><span>Sueldo</span><strong>€1.800 neto/mes</strong></div><div style="margin-top:10px"><span class="b bok">✓ Completo</span></div></div>
+    <div class="inv-card"><div class="inv-name">Tomi</div><div class="inv-role">Encargado · socio fundador</div><div class="ir"><span>Comprometido</span><strong>€59.800</strong></div><div class="ir"><span>Aportado</span><strong style="color:var(--amber)">€59.794</strong></div><div class="ir"><span>Saldo</span><strong style="color:var(--amber)">−€6</strong></div><div class="ir"><span>Sueldo</span><strong>€1.800 neto/mes</strong></div><div style="margin-top:10px"><span class="b bwn">−€6 pendiente</span></div></div>
+    <div class="inv-card"><div class="inv-name">Felo / Andres / Dudu</div><div class="inv-role">Socios inversores</div><div class="ir"><span>Comprometido</span><strong>€29.900</strong></div><div class="ir"><span>Aportado</span><strong style="color:var(--green)">€29.900</strong></div><div class="ir"><span>Saldo</span><strong style="color:var(--green)">€0</strong></div><div class="ir"><span>Sueldo</span><strong>—</strong></div><div style="margin-top:10px"><span class="b bok">✓ Completo</span></div></div>
+  </div>
+  <div class="card">
+    <div class="ct">📈 Escenarios de recupero</div>
+    <div class="tw"><table><thead><tr><th>Escenario</th><th>Facturación/mes</th><th>Beneficio neto socios</th><th>Recupero €70K</th><th>Recupero €149.500</th></tr></thead><tbody>
+      <tr><td><span class="b bbd">Break-even</span></td><td>€24.000</td><td>€0</td><td>—</td><td>—</td></tr>
+      <tr><td><span class="b bwn">Base</span></td><td>€31.818</td><td>~€4.511</td><td>≈ 18 meses</td><td>≈ 33 meses</td></tr>
+      <tr><td><span class="b bok">Optimista +20%</span></td><td>€38.182</td><td>~€5.413</td><td>≈ 15 meses</td><td>≈ 28 meses</td></tr>
+    </tbody></table></div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ RECOMENDACIONES ═══════════════════════════════ -->
+<section class="page" id="page-recomendaciones">
+  <div class="ph"><div><div class="pt">Recomendaciones</div><div class="ps">Análisis automático · semana 4 de operación · 15 mayo 2026 · 58 fra.</div></div></div>
+  <div class="g2">
+    <div>
+      <div class="card">
+        <div class="ct">🔴 Urgente esta semana</div>
+        <div class="rec rb"><div class="rct">Ritmo de mayo insuficiente</div><div class="rcd">€744/día actual vs €1.000/día necesario. Jueves, viernes y sábado son los días clave. Cualquier acción de RRSS esta semana tiene impacto directo en el resultado del mes.</div></div>
+        <div class="rec rb"><div class="rct">Pedir factura Carnival mayo y Coca-Cola</div><div class="rcd">Son las dos facturas más urgentes para el gestor. Llama a Carnival (+34 658 790 888) y al comercial de Coca-Cola esta semana.</div></div>
+        <div class="rec rw"><div class="rct">Vencimiento MCPack junio €517,92</div><div class="rcd">Las bolsas personalizadas tienen cuotas el 05/06 y 05/07. Asegurate de tener fondos.</div></div>
+      </div>
+      <div class="card">
+        <div class="ct">💡 Oportunidades de margen</div>
+        <div class="rec rg"><div class="rct">Alioli extra a €1,20 — ya aplicado</div><div class="rcd">Costo €0,05, margen €1,15 neto. Con ~200 aliolis/semana son €230 netos extra al mes sin cambiar nada.</div></div>
+        <div class="rec rg"><div class="rct">Bacon es el producto estrella — unificar nombre en SumUp</div><div class="rcd">Bacon + Bacon Estándar suman 384 uds y €5.987 — es la burger más vendida por lejos. En SumUp aparece con 2 nombres distintos, unificarlo en uno solo para tener las métricas correctas. Royale (351 uds) también sorprende — considerar destacarla más en carta.</div></div>
+        <div class="rec"><div class="rct">Ofrecer bebida en cada comanda</div><div class="rcd">Cerveza FC 32,7%, Agua FC 10%. Cada bebida alcohólica extra suma €1,50–€2 de margen neto. Entrenalo con el equipo.</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="ct">🛒 Compras semana próxima</div>
+        <div class="rec"><div class="rct">Carnival — carne</div><div class="rcd">~800 burgers/sem × 200g = 160kg. Confirmar pedido según stock. Pedir también factura de mayo.</div></div>
+        <div class="rec"><div class="rct">Palaoa & Wai — pan</div><div class="rcd">384 panes duran ~4-5 días. Calcular pedido. A €0,60/ud con €8 envío.</div></div>
+        <div class="rec"><div class="rct">Crusat — Estrella Galicia</div><div class="rcd">~280 copas/semana = ~12 cajas. Mantener stock de 2-3 cajas extra para fin de semana.</div></div>
+        <div class="rec"><div class="rct">Makro — reposición</div><div class="rcd">Patatas (100kg/sem), aceite alto oleico, sal, condimentos. Revisar stock de limpieza también.</div></div>
+      </div>
+      <div class="card">
+        <div class="ct">✅ Checklist del lunes</div>
+        <div class="chk">
+          <label><input type="checkbox"> Cargar CSV de SumUp de la semana</label>
+          <label><input type="checkbox"> Subir extracto bancario</label>
+          <label><input type="checkbox"> Revisar facturas nuevas en Gmail</label>
+          <label><input type="checkbox"> Subir fotos de tickets en efectivo (10-15 a la vez)</label>
+          <label><input type="checkbox"> Pedir factura Carnival (fin de mes)</label>
+          <label><input type="checkbox"> Confirmar stock carne y pan</label>
+          <label><input type="checkbox"> Revisar recomendaciones actualizadas</label>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+// ── NAVEGACIÓN ──────────────────────────────────────────────────────
+function goTo(id, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(el) el.classList.add('active');
+}
+
+// ── TABS ────────────────────────────────────────────────────────────
+function showTab(page, tab, el) {
+  const prefix = 'tp-'+page+'-';
+  document.querySelectorAll('[id^="'+prefix+'"]').forEach(p=>p.classList.remove('active'));
+  document.getElementById(prefix+tab).classList.add('active');
+  el.closest('.tabs').querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── STORAGE ─────────────────────────────────────────────────────────
+const DATA = {
+  ventas: [],
+  facturas: [],
+  load() {
+    try { this.ventas = JSON.parse(localStorage.getItem('bh_ventas')||'[]'); } catch(e){}
+    try { this.facturas = JSON.parse(localStorage.getItem('bh_facturas')||'[]'); } catch(e){}
+    this.renderVentas(); this.updateStats();
+  },
+  save() {
+    try { localStorage.setItem('bh_ventas', JSON.stringify(this.ventas)); } catch(e){}
+    try { localStorage.setItem('bh_facturas', JSON.stringify(this.facturas)); } catch(e){}
+  },
+  renderVentas() {
+    const extra = this.ventas;
+    if(!extra.length) return;
+    const tb = document.getElementById('ventas-tbody');
+    extra.forEach(v => {
+      const pct = ((v.bruto/1038-1)*100).toFixed(0);
+      const bc = pct>=0?'bok':(pct>=-20?'bwn':'bbd');
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${v.fecha}</td><td>${v.servicio}</td><td>€${v.bruto.toFixed(2)}</td><td>€${(v.bruto/1.10).toFixed(2)}</td><td><span class="b ${bc}">${pct>=0?'+':''}${pct}%</span></td>`;
+      tb.insertBefore(tr, tb.firstChild);
+    });
+    document.getElementById('ventas-count').textContent = 17 + extra.length;
+  },
+  updateStats() {
+    const total = 62 + this.facturas.length;
+    document.getElementById('dash-registradas').textContent = total;
+    document.getElementById('fact-count').textContent = total;
+    document.getElementById('sb-stats').innerHTML = `${total} facturas · ${17+this.ventas.length} días ventas`;
+  }
+};
+
+// ── ADD VENTA ───────────────────────────────────────────────────────
+function addVenta() {
+  const fecha = document.getElementById('v-fecha').value;
+  const bruto = parseFloat(document.getElementById('v-imp').value);
+  const servicio = document.getElementById('v-srv').value;
+  if(!fecha||!bruto){alert('Completá fecha e importe.');return;}
+  const d = new Date(fecha);
+  const fmt = d.getDate()+'/'+(d.getMonth()+1).toString().padStart(2,'0')+'/'+d.getFullYear();
+  DATA.ventas.push({fecha:fmt, bruto, servicio});
+  DATA.save(); DATA.renderVentas(); DATA.updateStats();
+  document.getElementById('v-imp').value='';
+  alert('✓ Venta añadida correctamente');
+}
+
+// ── ADD FACTURA MANUAL ──────────────────────────────────────────────
+function addFactura() {
+  const fecha = document.getElementById('f-fecha').value;
+  const prov = document.getElementById('f-prov').value;
+  const base = parseFloat(document.getElementById('f-base').value);
+  const ivaPct = document.getElementById('f-iva').value;
+  const cat = document.getElementById('f-cat').value;
+  const pago = document.getElementById('f-pago').value;
+  if(!fecha||!prov||!base){alert('Completá fecha, proveedor e importe.');return;}
+  const iva = base * parseFloat(ivaPct) / 100;
+  const total = base + iva;
+  const f = {fecha, prov, base:base.toFixed(2), iva:iva.toFixed(2), total:total.toFixed(2), cat, pago};
+  DATA.facturas.push(f);
+  DATA.save(); DATA.updateStats();
+  // Add to table
+  const tb = document.getElementById('facturas-tbody');
+  const tr = document.createElement('tr');
+  const isPago = pago==='Efectivo'?'ef-cash':'ef-ok';
+  const badge = pago==='Efectivo'?'<span class="b bwn">💵 Cash</span>':'<span class="b bok">✅ OK</span>';
+  tr.className = isPago;
+  tr.innerHTML = `<td>${fecha}</td><td>${prov}</td><td>—</td><td>${cat}</td><td>€${f.base}</td><td>${ivaPct}%</td><td>€${f.total}</td><td>${cat}</td><td>${pago}</td><td>${badge}</td>`;
+  tb.insertBefore(tr, tb.firstChild);
+  alert('✓ Factura registrada');
+}
+
+// ── CONFIRMAR FACTURA DESDE FOTO ─────────────────────────────────────
+function confirmarFactura(btn, prov, fecha, total, pago) {
+  const f = {fecha, prov, base:(parseFloat(total)/1.21).toFixed(2), iva:(parseFloat(total)-parseFloat(total)/1.21).toFixed(2), total, cat:'Varios / Equipamiento', pago};
+  DATA.facturas.push(f); DATA.save(); DATA.updateStats();
+  btn.textContent = '✓ Confirmado';
+  btn.disabled = true;
+  btn.className = 'btn';
+  btn.closest('tr').className = 'ef-ok';
+  btn.closest('tr').querySelector('td:last-child').innerHTML = '<span class="b bok">✅ Registrado</span>';
+}
+
+// ── CSV SUMUP ────────────────────────────────────────────────────────
+function procesarCSV(input) {
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const lines = e.target.result.split('\n').filter(l=>l.trim());
+    const ventas = lines.slice(1).filter(l=>l.includes('Venta'));
+    let bruto=0, desc=0;
+    ventas.forEach(line => {
+      const cols = line.match(/(".*?"|[^,]+)/g)||[];
+      const precio = parseFloat((cols[11]||'0').replace(/["]/g,'').replace(',','.'));
+      const descu = parseFloat((cols[10]||'0').replace(/["]/g,'').replace(',','.'));
+      if(!isNaN(precio)&&precio>0) bruto+=precio;
+      if(!isNaN(descu)&&descu>0) desc+=descu;
+    });
+    const neto = bruto/1.10;
+    const firstDate = (lines[1]||'').split(',')[0].replace(/"/g,'').split(' ').slice(0,3).join(' ');
+    const lastDate = (lines[lines.length-1]||'').split(',')[0].replace(/"/g,'').split(' ').slice(0,3).join(' ');
+    document.getElementById('csv-periodo').textContent = firstDate + ' → ' + lastDate;
+    document.getElementById('csv-bruto').textContent = '€' + bruto.toFixed(2);
+    document.getElementById('csv-neto').textContent = '€' + neto.toFixed(2);
+    document.getElementById('csv-lineas').textContent = ventas.length;
+    document.getElementById('csv-desc').textContent = '€' + desc.toFixed(2);
+    document.getElementById('csv-ok').style.display='flex';
+    document.getElementById('csv-msg').textContent = `✓ ${file.name} procesado correctamente`;
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+// ── PREVIEW FOTOS FACTURAS ───────────────────────────────────────────
+function previewFacturas(input) {
+  const files = Array.from(input.files);
+  const queue = document.getElementById('fact-queue');
+  queue.innerHTML = `<div class="alert aif"><span class="ai">ℹ️</span><div>${files.length} imágenes seleccionadas. <strong>Enviá esta conversación a Claude</strong> con las imágenes para que las procese y extraiga los datos automáticamente.</div></div>`;
+  files.slice(0,5).forEach(f => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const div = document.createElement('div');
+      div.style.cssText='display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:12px';
+      div.innerHTML = `<img src="${e.target.result}" style="width:48px;height:48px;object-fit:cover;border-radius:6px;border:1px solid var(--border)"><div><strong>${f.name}</strong><br><span style="color:var(--muted)">${(f.size/1024).toFixed(0)} KB · lista para procesar</span></div>`;
+      queue.appendChild(div);
+    };
+    reader.readAsDataURL(f);
+  });
+}
+
+// ── EXPORTS ──────────────────────────────────────────────────────────
+function exportVentas() {
+  let csv = 'Fecha,Servicio,Ventas brutas €,Ventas netas €\n';
+  csv += '23/04/2026,Noche (apertura),2551,2281\n24/04/2026,Noche,1664,1500\n25/04/2026,Mediodía+Noche,1431,1288\n';
+  DATA.ventas.forEach(v => { csv += `${v.fecha},${v.servicio},${v.bruto.toFixed(2)},${(v.bruto/1.10).toFixed(2)}\n`; });
+  download(csv, 'bighead_ventas.csv', 'text/csv');
+}
+
+function exportEERR() {
+  const txt = `BIG HEAD BARCELONA - EERR 3 SEMANAS (23/04 - 13/05/2026)
+VENTAS BRUTAS: €20.142
+INGRESOS NETOS: €17.119
+MARGEN BRUTO: €10.603 (62%)
+RESULTADO OPERATIVO ESTIMADO: €4.661 (pendiente SS empleados ~€840)`;
+  download(txt, 'bighead_eerr.txt', 'text/plain');
+}
+
+function exportFacturas() {
+  let csv = 'Fecha,Proveedor,Nº Factura,Base Imponible,IVA,Total,Categoría,Forma de Pago,Estado\n';
+  csv += '30/04/2026,Carnival BCN SL,2026/0410,2699.74,269.97,2969.71,Carne,Transferencia,Banco\n';
+  DATA.facturas.forEach(f => { csv += `${f.fecha},${f.prov},,${f.base},${f.iva},${f.total},${f.cat},${f.pago},Registrado\n`; });
+  download(csv, 'bighead_facturas_gestor.csv', 'text/csv');
+}
+
+function download(content, filename, type) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type}));
+  a.download = filename; a.click();
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────
+DATA.load();
+</script>
+</body>
+</html>
